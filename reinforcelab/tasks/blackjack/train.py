@@ -1,6 +1,6 @@
 from tqdm import tqdm
 import gymnasium as gym
-from reinforcelab.agents.value_optimization import QLearningAgent
+from reinforcelab.tasks.blackjack.q_learning import QLearningAgent
 
 
 def train(env, agent, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-6, min_epsilon=.01):
@@ -15,7 +15,7 @@ def train(env, agent, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-6, min_epsi
             # Generate a RL interaction
             action = agent.act(state, epsilon=epsilon)
             next_state, reward, done, truncated, info = env.step(action)
-            agent.learn(state, action, reward, next_state, done)
+            agent.update(state, action, reward, next_state, done)
 
             # Update epsilon
             epsilon = max(min_epsilon, epsilon * (1 - epsilon_decay))
