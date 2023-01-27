@@ -58,7 +58,7 @@ class QLearningAgent:
         X = np.arange(1, 11)
         Y = np.arange(12, 23)
         X, Y = np.meshgrid(X, Y)
-        Z = self.qtable[11:22, 1:, 0].max(axis=-1)
+        Z = self.qtable[11:22, 1:, 1].max(axis=-1)
 
         surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm)
         plt.show()
