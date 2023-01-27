@@ -1,11 +1,12 @@
 from tqdm import tqdm
+from time import sleep
 import gymnasium as gym
-from reinforcelab.tasks.blackjack.q_learning import QLearningAgent
+from reinforcelab.agents.value_optimization.q_learning import QLearningAgent
 
 
-def train(env, agent, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-6, min_epsilon=.01):
+def train(env, agent, path, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-6, min_epsilon=.01, ):
     loop = tqdm(range(num_epochs))
-    best_cum_reward = float("-inf")
+    best_avg_reward = float("-inf")
     rewards_history = []
 
     for _ in loop:
@@ -26,24 +27,48 @@ def train(env, agent, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-6, min_epsi
             if done or truncated:
                 break
 
-        # Save best model
-        if epoch_cum_reward > best_cum_reward:
-            best_cum_reward = epoch_cum_reward
-            agent.save(f"{env.spec.id}-{agent.__class__.__name__}")
-
         # Show performance
         rewards_history.append(epoch_cum_reward)
         rewards_window = rewards_history[-100:]
         avg_reward = sum(rewards_window)/len(rewards_window)
+
+        # Save best model
+        if avg_reward > best_avg_reward:
+            best_avg_reward = avg_reward
+            agent.save(path)
+
         loop.set_description(
             f"Avg 100eps Reward: {round(avg_reward, 4)} | Epsilon: {round(epsilon, 3)}")
     return rewards_history
 
 
-if __name__ == '__main__':
-    env = gym.make('Blackjack-v1', sab=True)
-    agent = QLearningAgent(env, gamma=0.99, alpha=0.01)
+def test(env, agent, num_episodes=100):
+    cum_reward = 0
+    for _ in tqdm(range(num_episodes)):
+        state, info = env.reset()
+        ep_cum_reward = 0
+        while True:
+            action = agent.act(state)
+            next_state, reward, done, *_ = env.step(action)
+            ep_cum_reward += reward
+            state = next_state
 
-    train(env, agent, epsilon=1., epsilon_decay=1e-5,
-          num_epochs=100000, min_epsilon=0.1)
+            if done:
+                break
+
+        cum_reward += ep_cum_reward
+    avg_reward = cum_reward / num_episodes
+    print(
+        f"The agent obtained an average reward of {avg_reward} over {num_episodes} episode(s)")
+
+
+if __name__ == '__main__':
+    env = gym.make('Blackjack-v1')
+    agent = QLearningAgent(env, gamma=0.99, alpha=0.01)
+    path = f"{env.spec.id}-{agent.__class__.__name__}"
+
+    # train(env, agent, path, epsilon=1., epsilon_decay=1e-5,
+    #       num_epochs=200000, min_epsilon=0.01)
+    agent.load(path)
+    test(env, agent)
     agent.display_policy()
