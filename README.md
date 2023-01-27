@@ -2,6 +2,7 @@
 <p align="center">
 	<img src="./assets/logo.png">
 </p>
+
 Welcome to 🚀 <b>ReinforceLab</b> 🧠, the ultimate destination for anyone looking to dive deep into the world of reinforcement learning! Our repository is packed with <b>well-thought-out solutions</b> to a wide range of RL environments, as well as <b>optimized solutions</b> that push boundaries. Whether you're a beginner 🔰 looking for easy-to-understand solutions or an experienced researcher 🧑‍💻 looking to take your skills to the next level, ReinforceLab has something for everyone.
 
 Our goal is to create a community of RL enthusiasts 🤝 who can come together to <b>share knowledge, collaborate on projects, and achieve greatness</b>. We're excited to see what you'll achieve with the help of our solutions and resources!
