@@ -39,8 +39,3 @@ class Agent(ABC):
         Args:
             path (str): Where the agent is stored
         """
-
-    @abstractmethod
-    def display_policy(self):
-        """Display the policy
-        """
