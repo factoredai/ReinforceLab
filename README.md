@@ -12,6 +12,7 @@ And for the competitive ones, we have a <b>leaderboard</b> 📊 where you can sh
 Reinforcelab is distributed as a Python package. To use it, you should clone and install this repository
 ```
 git clone https://github.com/factoredai/ReinforceLab
+cd ReinforceLab
 pip install -e .
 ```
 
