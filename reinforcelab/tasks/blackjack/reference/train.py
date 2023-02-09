@@ -1,7 +1,6 @@
 from tqdm import tqdm
-from time import sleep
 import gymnasium as gym
-from reinforcelab.agents.value_optimization.q_learning import QLearningAgent
+from q_learning import QLearningAgent
 
 
 def train(env, agent, path, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-6, min_epsilon=.01, ):
@@ -63,12 +62,12 @@ def test(env, agent, num_episodes=100):
 
 
 if __name__ == '__main__':
-    env = gym.make('Blackjack-v1')
-    agent = QLearningAgent(env, gamma=0.99, alpha=0.01)
+    env = gym.make('Blackjack-v1', sab=True)
+    agent = QLearningAgent(env, gamma=0.999, alpha=0.001)
     path = f"{env.spec.id}-{agent.__class__.__name__}"
 
-    # train(env, agent, path, epsilon=1., epsilon_decay=1e-5,
-    #       num_epochs=200000, min_epsilon=0.01)
+    train(env, agent, path, epsilon=1., epsilon_decay=1e-6,
+          num_epochs=100000, min_epsilon=0.1)
     agent.load(path)
     test(env, agent)
     agent.display_policy()

@@ -2,6 +2,7 @@ import os
 import numpy as np
 from matplotlib import cm
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class QLearningAgent:
@@ -54,11 +55,41 @@ class QLearningAgent:
         self.qtable = np.load(filepath)
 
     def display_policy(self):
-        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-        X = np.arange(1, 11)
-        Y = np.arange(12, 23)
-        X, Y = np.meshgrid(X, Y)
-        Z = self.qtable[11:22, 1:, 1].max(axis=-1)
-
-        surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm)
+        fig = plt.figure(figsize=(9, 9))
+        fig.suptitle("Agent Policy")
+        ax1 = fig.add_subplot(2, 2, 1, projection="3d")
+        self.__display_value(ax1, usable_ace=False)
+        fig.add_subplot(2, 2, 2)
+        self.__display_policy(usable_ace=False)
+        ax3 = fig.add_subplot(2, 2, 3, projection="3d")
+        self.__display_value(ax3, usable_ace=True)
+        fig.add_subplot(2, 2, 4)
+        self.__display_policy(usable_ace=True)
         plt.show()
+
+    def __display_value(self, ax, usable_ace):
+        X = np.arange(2, 12)
+        Y = np.arange(13, 23)
+        X, Y = np.meshgrid(X, Y)
+        Z = self.qtable[11:21, 1:, int(usable_ace)].max(axis=-1).T
+
+        surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
+                               cmap="viridis", edgecolor="none")
+        plt.xticks(range(2, 12), range(12, 22))
+        plt.yticks(range(13, 23), ["A"] + list(range(2, 11)))
+        ax.set_title(
+            f"State values: {'No' if not usable_ace else ''} Usable Ace")
+        ax.set_xlabel("Player sum")
+        ax.set_ylabel("Dealer showing")
+        ax.zaxis.set_rotate_label(False)
+        ax.set_zlabel("Value", fontsize=14, rotation=90)
+
+    def __display_policy(self, usable_ace):
+        policy_grid = self.qtable[11:21, 1:, int(usable_ace)].argmax(axis=-1).T
+        ax = sns.heatmap(policy_grid, linewidth=0,
+                         annot=True, cmap="Accent_r", cbar=False)
+        ax.set_title(f"Policy: {'No' if not usable_ace else ''} Usable Ace")
+        ax.set_xlabel("Player sum")
+        ax.set_ylabel("Dealer showing")
+        ax.set_xticklabels(range(12, 22))
+        ax.set_yticklabels(["A"] + list(range(2, 11)), fontsize=12)
