@@ -4,8 +4,10 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from reinforcelab.agents.agent import Agent
 
-class QLearningAgent:
+
+class QLearningAgent(Agent):
     def __init__(self, env, gamma, alpha):
         self.env = env
 
