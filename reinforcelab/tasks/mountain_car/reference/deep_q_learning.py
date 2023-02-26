@@ -100,8 +100,13 @@ class DeepQLearningAgent(Agent):
 class Network(nn.Module):
     def __init__(self, input_size, output_size):
         super(Network, self).__init__()
-        self.network = nn.Linear(input_size, output_size)
+        self.network = nn.Sequential(
+            nn.Linear(input_size, 8),
+            nn.ReLU(),
+            nn.Linear(8, 8),
+            nn.ReLU(),
+            nn.Linear(8, output_size)
+        )
 
     def forward(self, x):
-        x = self.network(x)
-        return F.softmax(x, dim=-1)
+        return self.network(x)
