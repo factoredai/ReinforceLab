@@ -1,3 +1,4 @@
+import cv2
 from tqdm import tqdm
 import gymnasium as gym
 from deep_q_learning import DeepQLearningAgent
@@ -7,12 +8,19 @@ def train(env, agent, path, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-5, mi
     loop = tqdm(range(num_epochs))
     best_avg_reward = float("-inf")
     rewards_history = []
+    render_every = 1000
 
-    for _ in loop:
+    for epoch in loop:
         state, info = env.reset()
         epoch_cum_reward = 0
         while True:
             # Generate a RL interaction
+            if epoch % render_every == 0:
+                img = env.render()
+                cv2.imshow(f'MountainCar | Epoch {epoch}', img)
+                cv2.waitKey(40)
+            else:
+                cv2.destroyAllWindows()
             action = agent.act(state, epsilon=epsilon)
             next_state, reward, done, truncated, info = env.step(action)
             agent.update(state, action, reward, next_state, done)
@@ -62,11 +70,12 @@ def test(env, agent, num_episodes=100):
 
 
 if __name__ == "__main__":
-    env = gym.make('MountainCar-v0')
+    env = gym.make('CartPole-v1', render_mode="rgb_array")
     agent = DeepQLearningAgent(env, gamma=0.999, alpha=0.001)
     path = f"{env.spec.id}-{agent.__class__.__name__}"
 
-    train(env, agent, path, epsilon=1)
+    train(env, agent, path, epsilon=1, num_epochs=25000, epsilon_decay=6e-4)
     agent.load(path)
+    env = gym.make('CartPole-v1', render_mode="human")
     test(env, agent)
     agent.display_policy()

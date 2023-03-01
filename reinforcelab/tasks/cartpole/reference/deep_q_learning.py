@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 import numpy as np
 import torch
 from torch import nn
@@ -9,7 +10,7 @@ from memory_buffer import MemoryBuffer
 
 
 class DeepQLearningAgent(Agent):
-    def __init__(self, env, gamma, alpha, learning_rate=0.03, batch_size=256, update_every=32):
+    def __init__(self, env, gamma, alpha, learning_rate=0.0003, batch_size=128, update_every=10):
         self.env = env
         self.gamma = gamma
         self.alpha = alpha
@@ -20,9 +21,9 @@ class DeepQLearningAgent(Agent):
 
         self.state_size = env.observation_space.shape[0]
         self.action_size = env.action_space.n
-        self.memory = MemoryBuffer(2**12)
+        self.memory = MemoryBuffer(20000)
         self.local_nn = Network(self.state_size, self.action_size)
-        self.target_nn = Network(self.state_size, self.action_size)
+        self.target_nn = deepcopy(self.local_nn)
 
     def act(self, state, epsilon=0.0):
         state = torch.tensor(state).float().unsqueeze(0)
@@ -30,7 +31,7 @@ class DeepQLearningAgent(Agent):
         action = np.argmax(qvalues)
 
         # Randomly choose an action with p=epsilon
-        if np.random.random() < epsilon:
+        if np.random.rand() < epsilon:
             action = np.random.choice(self.action_size)
         return action
 
@@ -101,11 +102,11 @@ class Network(nn.Module):
     def __init__(self, input_size, output_size):
         super(Network, self).__init__()
         self.network = nn.Sequential(
-            nn.Linear(input_size, 8),
+            nn.Linear(input_size, 120),
             nn.ReLU(),
-            nn.Linear(8, 8),
+            nn.Linear(120, 84),
             nn.ReLU(),
-            nn.Linear(8, output_size)
+            nn.Linear(84, output_size)
         )
 
     def forward(self, x):
