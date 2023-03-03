@@ -17,7 +17,7 @@ jobs:
       - name: setup python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8 #install the python needed
+          python-version: 3.9 #install the python needed
       - name: Install Dependencies
         run: python -m pip install --upgrade pip pandas datetime tabulate tqdm dill gymnasium numpy torch
 
