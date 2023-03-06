@@ -4,7 +4,7 @@ import gymnasium as gym
 from deep_q_learning import DeepQLearningAgent
 import numpy as np
 import torch
-
+import dill
 
 def train(env, agent, path, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-5, min_epsilon=.01):
     loop = tqdm(range(num_epochs))
@@ -53,6 +53,7 @@ def train(env, agent, path, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-5, mi
         if avg_reward > best_avg_reward:
             best_avg_reward = avg_reward
             agent.save(path)
+            agent.num_epochs = epoch
 
         loop.set_description(
             f"Avg 100eps Reward: {round(avg_reward, 4)} | Epsilon: {round(epsilon, 3)}")
@@ -86,8 +87,15 @@ if __name__ == "__main__":
     agent = DeepQLearningAgent(env, gamma=0.999, alpha=0.0001)
     path = f"{env.spec.id}-{agent.__class__.__name__}"
 
+    # Train agent
     train(env, agent, path, epsilon=0.5, num_epochs=5000, epsilon_decay=6e-6)
+    
+    # Test and save agent
     agent.load(path)
-    env = gym.make('MountainCar-v0', render_mode="human")
+
+    with open(f'./optimized_agent.dill', 'rb') as file:
+        agent = dill.load(file)
+
+    env = gym.make('MountainCar-v0', render_mode="rgb_array")
     test(env, agent)
     agent.display_policy()

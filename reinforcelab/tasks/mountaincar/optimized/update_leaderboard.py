@@ -17,15 +17,15 @@ def load_leaderboard(path='/leaderboard/leaderboard.csv'):
         print(path)
         return pd.read_csv(path)
     else:
-        return pd.DataFrame(columns=['User', 'Score', 'Date'])
+        return pd.DataFrame(columns=['User', 'Score', "Num Epochs", 'Date (UTC)'])
 
-def add_score(leaderboard, user="test_user", score=0):
+def add_score(leaderboard, user="test_user", score=0, num_epochs=0):
     
-    new_score = pd.DataFrame.from_dict({'User': [user], 'Score': [score], 'Date': [datetime.utcnow()]})
+    new_score = pd.DataFrame.from_dict({'User': [user], 'Score': [score], "Num Epochs": [num_epochs], 'Date (UTC)': [datetime.utcnow()]})
     leaderboard = pd.concat([leaderboard, new_score], axis=0)
 
     # Sort leaderboard
-    leaderboard = leaderboard.sort_values(by=['Score'], ascending=[0]).reset_index(drop=True)
+    leaderboard = leaderboard.sort_values(by=['Score', 'Num Epochs'], ascending=[0, 1]).reset_index(drop=True)
 
     return leaderboard
 
@@ -83,6 +83,6 @@ if __name__ == "__main__":
 
     # Update Leaderboard
     leaderboard = load_leaderboard()
-    leaderboard = add_score(leaderboard, user=sys.argv[1], score=avg_reward)
+    leaderboard = add_score(leaderboard, user=sys.argv[1], score=avg_reward, num_epochs=agent.num_epochs)
     save_leaderboard(leaderboard)
     update_readme(leaderboard.head(10))

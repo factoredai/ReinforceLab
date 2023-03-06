@@ -18,6 +18,7 @@ class DeepQLearningAgent(Agent):
         self.batch_size = batch_size
         self.update_every = update_every
         self.step = 0
+        self.num_epochs = 0
 
         self.rng = np.random.RandomState()
         self.rng.seed(0) # Set random seed
