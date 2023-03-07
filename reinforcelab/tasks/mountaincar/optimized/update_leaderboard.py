@@ -13,8 +13,6 @@ def load_leaderboard(path='/leaderboard/leaderboard.csv'):
     path = "/".join((sys.argv[0]).split('/')[:-2]) + path
 
     if os.path.exists(path):
-        print(pd.read_csv(path))
-        print(path)
         return pd.read_csv(path)
     else:
         return pd.DataFrame(columns=['User', 'Score', "Num Epochs", 'Date (UTC)'])
