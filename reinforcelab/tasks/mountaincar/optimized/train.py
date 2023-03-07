@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import dill
 
-def train(env, agent, path, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-5, min_epsilon=.01):
+def train(env, agent, path, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-5, min_epsilon=0):
     loop = tqdm(range(num_epochs))
     best_avg_reward = float("-inf")
     rewards_history = []
@@ -88,14 +88,15 @@ if __name__ == "__main__":
     path = f"{env.spec.id}-{agent.__class__.__name__}"
 
     # Train agent
-    train(env, agent, path, epsilon=0.5, num_epochs=5000, epsilon_decay=6e-6)
+    train(env, agent, path, epsilon=0.5, num_epochs=6000, epsilon_decay=8e-6)
     
     # Test and save agent
     agent.load(path)
+    agent.env = None
+    
+    with open(f'./optimized_agent.dill', 'wb') as file:
+        dill.dump(agent, file)
 
-    with open(f'./optimized_agent.dill', 'rb') as file:
-        agent = dill.load(file)
-
-    env = gym.make('MountainCar-v0', render_mode="rgb_array")
-    test(env, agent)
+    test_env = gym.make('MountainCar-v0', render_mode="rgb_array")
+    test(test_env, agent)
     agent.display_policy()
