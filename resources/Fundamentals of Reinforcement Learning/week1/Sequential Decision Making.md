@@ -27,7 +27,7 @@ $q_{n+1} = q_n + \alpha_n [R_n - q_n]$
 
 Given the estimate update in red, what do you think was the value of the step size parameter we used to update the estimate on each time step?
 
-![Image of estimate update](https://d3c33hcgiwev3.cloudfront.net/imageAssetProxy.v1/E4RJl4cKEemA0BK4cRbOlg_acc93e119b1793005c3be9b36e9295c4_chart-_4_.png?expiry=1679011200000&hmac=tvJBdelwHWtFSjfu-tBtvBpJmeDfEhbFPeElQzdw_pI)
+![Image of estimate update](assets/q2.png)
 
 - 1.0
 - 1/2
@@ -52,7 +52,7 @@ $$q_{n+1}=q_n+\alpha_n[R_n-q_n]$$
 
 Given the estimate update in red, what do you think was the value of the step size parameter we used to update the estimate on each time step?
 
-![](https://d3c33hcgiwev3.cloudfront.net/imageAssetProxy.v1/1YaT04cKEemVeg5DpI4LqA_1e09c6b42858c4b8e728a9db745a0ec7_chart-_5_.png?expiry=1679011200000&hmac=wK9JQqBwAjxK3PzKcoN7Nsq3Tb0NLk7BjsjplmzjZ3g)
+![](assets/q3.png)
 
 1. 1.0
 2. 1/(t-1)
@@ -81,7 +81,7 @@ $$q_{n+1} = q_n + \alpha_n[R_n - q_n]$$
 
 Given the estimate update in red, what do you think was the value of the step size parameter we used to update the estimate on each time step?
 
-![](https://d3c33hcgiwev3.cloudfront.net/imageAssetProxy.v1/5oQYd4cKEemVeg5DpI4LqA_5023925429e9e1859eacaf528561f8d9_chart-_6_.png?expiry=1679011200000&hmac=1VoGP94Piw2MD3ifU9JgUGc8AJQoWHLtKsqEdj7-Y6E)
+![](assets/q4.png)
 
 - 1/2
 - 1.0
@@ -105,7 +105,7 @@ $q_{n+1} = q_n + \alpha_n [R_n - q_n]$
 
 Given the estimate update in red, what do you think was the value of the step size parameter we used to update the estimate on each time step?
 
-![](https://d3c33hcgiwev3.cloudfront.net/imageAssetProxy.v1/-CfvTIcKEemVeg5DpI4LqA_5d2a80708c491acae15e2f42604ef2b4_chart-_7_.png?expiry=1679011200000&hmac=cy8zYylBdhConKVCPVzmblDUw9pewfMR7ktMos5jycg)
+![](assets/q5.png)
 
 - 1.0
 - 1/2
@@ -145,7 +145,7 @@ The agent wants to maximize the amount of reward it receives over time, but need
 
 Why did epsilon of 0.1 perform better over 1000 steps than epsilon of 0.01?
 
-![](https://d3c33hcgiwev3.cloudfront.net/imageAssetProxy.v1/OdNsrHbGEemVOgruE3X9hg_1d72d77ad61d5d80678e869fa6f793d8_download.png?expiry=1679011200000&hmac=Km57n9qIRRHdQ5yxqYc7MntjeTEzvucxnKwYHrppcpk)
+![](assets/q7.png)
 
 - The 0.01 agent did not explore enough. Thus it ended up selecting a suboptimal arm for longer.
 - The 0.01 agent explored too much causing the arm to choose a bad action too often.
@@ -167,7 +167,7 @@ The agent needs to be able to explore enough to be able to find the best arm to 
 
 If exploration is so great why did epsilon of 0.0 (a greedy agent) perform better than epsilon of 0.4?
 
-![](https://d3c33hcgiwev3.cloudfront.net/imageAssetProxy.v1/8VaPyIcMEemNChIBV74tfA_9eaa84f77f36743c871b8cc26b5c2265_quiz-image.png?expiry=1679011200000&hmac=WsJ9VoChYEP_wpYYshPC1yXsLroVGFcrr5Hjc1p7lbA)
+![](assets/q8.png)
 
 - Epsilon of 0.4 doesn’t explore often enough to find the optimal action.
 - Epsilon of 0.4 explores too often that it takes many sub-optimal actions causing it to do worse over the long term.
