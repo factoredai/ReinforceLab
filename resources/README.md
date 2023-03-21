@@ -15,3 +15,6 @@ If you find any errors or have any suggestions for improving these homeworks and
 ## Disclaimer
 
 This repository is not affiliated with Coursera or the Reinforcement Learning Coursera Specialization. The materials in this repository are provided for educational purposes only and are not intended to be a substitute for official course materials.
+
+### Sources
+Quizzes and homeworks are taken from the Coursera course. The quizzes are being adapted by us, the ReinforceLab Team. Homeworks and notebooks are been taken and only lightly adapted (answers removed) from https://github.com/ChanchalKumarMaji/Reinforcement-Learning-Specialization
