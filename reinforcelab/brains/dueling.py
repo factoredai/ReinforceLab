@@ -1,12 +1,15 @@
+import torch
 import torch.nn as nn
 from itertools import zip_longest
+from .brain import Brain
 
-class DuelingQNetwork(nn.Module):
-    def __init__(self, state_size, action_size, hidden_layers=[]):
+class DuelingQNetwork(nn.Module, Brain):
+    def __init__(self, state_size, action_size, hidden_layers=[], learning_rate=0.001):
         super(DuelingQNetwork, self).__init__()
         self.state_size = state_size
         self.action_size = action_size
         self.hidden_layers = hidden_layers
+        self.learning_rate = learning_rate
         self.model, self.value_head, self.advantage_head = self.__build_model()
 
     def __build_model(self):
@@ -24,3 +27,12 @@ class DuelingQNetwork(nn.Module):
         value = self.value_head(hidden_activations)
         advantage = self.advantage_head(hidden_activations)
         return value + advantage
+
+    def update(self, _, pred, target):
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+        loss = nn.MSELoss()
+
+        loss_val = loss(pred, target)
+        optimizer.zero_grad()
+        loss_val.backward()
+        optimizer.step()

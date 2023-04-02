@@ -1,12 +1,16 @@
+import torch
 import torch.nn as nn
 from itertools import zip_longest
 
-class VanillaQNetwork(nn.Module):
-    def __init__(self, state_size, action_size, hidden_layers=[]):
+from .brain import Brain
+
+class VanillaQNetwork(nn.Module, Brain):
+    def __init__(self, state_size, action_size, hidden_layers=[], learning_rate=0.01):
         super(VanillaQNetwork, self).__init__()
         self.state_size = state_size
         self.action_size = action_size
         self.hidden_layers = hidden_layers
+        self.learning_rate = learning_rate
         self.model = self.__build_model()
 
     def __build_model(self):
@@ -19,3 +23,12 @@ class VanillaQNetwork(nn.Module):
 
     def forward(self, state):
         return self.model(state)
+
+    def update(self, _, pred, target):
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+        loss = nn.MSELoss()
+
+        loss_val = loss(pred, target)
+        optimizer.zero_grad()
+        loss_val.backward()
+        optimizer.step()
