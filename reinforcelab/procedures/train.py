@@ -2,6 +2,7 @@ import torch
 from tqdm import tqdm
 from gymnasium import Env
 from reinforcelab.agents.agent import Agent
+from reinforcelab.experience import Experience
 
 
 class Train:
@@ -27,7 +28,9 @@ class Train:
                 action = agent.act(actionable_state, epsilon=epsilon)
                 next_state, reward, done, truncated, info = env.step(
                     action.item())
-                agent.update(state, action, reward, next_state, done)
+                experience = Experience(
+                    state, action, reward, next_state, done)
+                agent.update(experience)
 
                 epoch_cum_reward += reward
                 state = next_state
