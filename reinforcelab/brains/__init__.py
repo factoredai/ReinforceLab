@@ -1,6 +1,6 @@
 from .brain import Brain
-from .qtable import QTable
-from .vanilla import VanillaQNetwork
-from .dueling import DuelingQNetwork
+from .q_table import QTable
+from .q_network import QNetwork
+from .dueling_q_network import DuelingQNetwork
 
-__all__ = [Brain, QTable, VanillaQNetwork, DuelingQNetwork]
+__all__ = [Brain, QTable, QNetwork, DuelingQNetwork]
