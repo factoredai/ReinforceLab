@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 from reinforcelab.experience import Experience
 
+
 class Brain(ABC):
     @abstractmethod
     def __call__(self, state: Tensor) -> Tensor:
@@ -26,4 +27,13 @@ class Brain(ABC):
             experience (Experience): An experience instance
             pred (Tensor): Current estimation for a given state
             target (Tensor): Expected estimation for the same given state
+        """
+
+    @abstractmethod
+    def update_from(self, brain: "Brain"):
+        """Updates the brain according to another brain. This is common for DeepRL, which
+        uses two instances of the same brain for stability, and updates one in a slower fashion.
+
+        Args:
+            brain (Brain): The brain to update from. Commonly, this would be the local, more frequently-updated brain.
         """

@@ -6,7 +6,8 @@ from .update_estimator import UpdateEstimator
 from reinforcelab.experience import Experience
 from reinforcelab.brains import Brain
 
-class VanillaEstimator(UpdateEstimator):
+
+class QEstimator(UpdateEstimator):
     def __init__(self, local_brain: Brain, target_brain: Brain, gamma: float):
         """Creates a vanilla estimator
 

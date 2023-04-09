@@ -1,5 +1,5 @@
 from .update_estimator import UpdateEstimator
-from .vanilla import VanillaEstimator
-from .double_dqn import DoubleDQNEstimator
+from .q_estimator import QEstimator
+from .double_q_estimator import DoubleQEstimator
 
-__all__ = [UpdateEstimator, VanillaEstimator, DoubleDQNEstimator]
+__all__ = [UpdateEstimator, QEstimator, DoubleQEstimator]

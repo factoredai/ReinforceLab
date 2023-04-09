@@ -4,9 +4,11 @@ from collections import deque
 from reinforcelab.memory_buffers.memory_buffer import MemoryBuffer
 from reinforcelab.experience import Experience, BatchExperience
 
+
 class ExperienceReplay(MemoryBuffer):
     def __init__(self, config):
         self.experience_buffer = deque(maxlen=config['max_size'])
+        self.batch_size = config["batch_size"]
 
     def add(self, experience: Experience):
         """Adds an experience tuple to the memory buffer
@@ -16,7 +18,7 @@ class ExperienceReplay(MemoryBuffer):
         """
         self.experience_buffer.append(experience)
 
-    def sample(self, batch_size):
+    def sample(self) -> BatchExperience:
         """Retrieves a random set of experience tuples from the memory buffer
 
         Args:
@@ -25,7 +27,8 @@ class ExperienceReplay(MemoryBuffer):
         Returns:
             (BatchExperience): A batch of experiences
         """
-        experiences = random.sample(list(self.experience_buffer), batch_size)
+        experiences = random.sample(
+            list(self.experience_buffer), self.batch_size)
         return BatchExperience(experiences)
 
     def __len__(self):
