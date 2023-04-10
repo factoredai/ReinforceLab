@@ -7,7 +7,7 @@ from reinforcelab.experience import Experience
 from reinforcelab.brains import Brain
 
 
-class QEstimator(UpdateEstimator):
+class MaxQEstimator(UpdateEstimator):
     def __init__(self, local_brain: Brain, target_brain: Brain, gamma: float):
         """Creates a Q estimator
 
