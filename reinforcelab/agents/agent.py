@@ -61,7 +61,11 @@ class Agent(BaseAgent):
 
     def update(self, experience):
         self.memory_buffer.add(experience)
-        batch = self.memory_buffer.sample()
+        try:
+            batch = self.memory_buffer.sample()
+        except RuntimeError:
+            # If the batch can't be obtained, skip the update proc
+            return
         pred, target = self.estimator(batch)
         self.local_brain.update(batch, pred, target)
         self.target_brain.update_from(self.local_brain)
