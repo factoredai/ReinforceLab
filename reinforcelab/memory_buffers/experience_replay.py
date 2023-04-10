@@ -21,12 +21,12 @@ class ExperienceReplay(MemoryBuffer):
     def sample(self) -> BatchExperience:
         """Retrieves a random set of experience tuples from the memory buffer
 
-        Args:
-            batch_size (int): The number of samples to retrieve in a single batch
-
         Returns:
             (BatchExperience): A batch of experiences
         """
+        if len(self) < self.batch_size:
+            raise RuntimeError(
+                "There's not enough experience to create a batch")
         experiences = random.sample(
             list(self.experience_buffer), self.batch_size)
         return BatchExperience(experiences)

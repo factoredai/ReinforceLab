@@ -7,9 +7,9 @@ from reinforcelab.experience import Experience
 from reinforcelab.brains import Brain
 
 
-class QEstimator(UpdateEstimator):
+class SARSAEstimator(UpdateEstimator):
     def __init__(self, local_brain: Brain, target_brain: Brain, gamma: float):
-        """Creates a Q estimator
+        """Creates a vanilla estimator
 
         Args:
             local_brain (Module): the local, more frequently updated brain
@@ -21,23 +21,29 @@ class QEstimator(UpdateEstimator):
         self.gamma = gamma
 
     def __call__(self, experience: Experience) -> Tuple[Tensor, Tensor]:
-        """Computes the action-value estimation for an experience tuple with the given local and
-        target networks. It computes the value estimation directly from the local target, as well
-        as the bellman equation value estimation with the target network.
+        """Computes the action-value estimation using the SARSA algorith. It expects
+        the experience to come in order so that it can extract the next_action.
 
         Args:
-            experience (Experience): An experience instance or batch
+            experience (Experience): An ordered experience batch
 
         Returns:
             List[Tensor]: a list containing value estimation from the local network and the bellman update.
         """
 
         states, actions, rewards, next_states, dones, *_ = experience
+        next_actions = actions[1:]
+        states = states[:-1]
+        actions = actions[:-1]
+        rewards = rewards[:-1]
+        next_states = next_states[:-1]
+        dones = dones[:-1]
 
         with torch.no_grad():
-            # Implement DQN
-            max_vals = self.target_brain(next_states).max(dim=1).values
-            target = rewards + self.gamma * max_vals * (1-dones)
+            # Implement SARSA
+            next_qs = self.target_brain(next_states)
+            next_vals = next_qs.gather(1, next_actions).squeeze()
+            target = rewards + self.gamma * next_vals * (1-dones)
         pred_values = self.local_brain(states)
         pred = pred_values.gather(1, actions).squeeze()
 
