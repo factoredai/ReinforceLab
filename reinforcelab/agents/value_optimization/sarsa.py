@@ -19,8 +19,10 @@ class SARSAAgent(Agent):
 
     def __init__(self, env: Env, discount_factor: float = 0.999):
         state_size, action_size = get_state_action_sizes(env)
+
         brain = QTable(state_size, action_size)
         estimator = SARSAEstimator(brain, brain, discount_factor)
         action_selector = EpsilonGreedy(action_size)
         buffer = OrderedBuffer({"batch_size": 2, "max_size": 2})
+
         super().__init__(brain, brain, estimator, action_selector, buffer)
