@@ -9,7 +9,6 @@ from reinforcelab.update_estimators import UpdateEstimator
 from reinforcelab.memory_buffers import MemoryBuffer
 from reinforcelab.action_selectors import ActionSelector
 from reinforcelab.experience import Experience
-from reinforcelab.utils import get_state_action_sizes
 
 
 class BaseAgent(ABC):

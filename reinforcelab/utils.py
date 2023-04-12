@@ -1,6 +1,6 @@
 import torch
 from typing import Tuple
-from gymnasium import Env
+import gymnasium as gym
 
 
 def tie_breaker(values: torch.Tensor) -> torch.Tensor:
@@ -44,7 +44,7 @@ def epsilon_greedy(qvalues: torch.Tensor, epsilon=0.0) -> torch.Tensor:
     return action
 
 
-def get_state_action_sizes(env: Env) -> Tuple[int, int]:
+def get_state_action_sizes(env: gym.Env) -> Tuple[int, int]:
     """Returns the state and action sizes from an environment.
     This method standardizes how to get those values from different environments,
     each of which could have different Space definition.
@@ -55,7 +55,7 @@ def get_state_action_sizes(env: Env) -> Tuple[int, int]:
     Returns:
         Tuple[int, int]: A tuple with state_size, action_size respectively
     """
-    if isinstance(env.observation_space, Tuple):
+    if isinstance(env.observation_space, gym.spaces.Tuple):
         state_size = len(env.observation_space)
     else:
         state_size = env.observation_space.n
