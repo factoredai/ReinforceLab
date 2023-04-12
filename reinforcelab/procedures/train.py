@@ -50,7 +50,7 @@ class Train:
             avg_reward = sum(rewards_window)/len(rewards_window)
 
             # Save best model
-            if avg_reward > best_avg_reward:
+            if avg_reward >= best_avg_reward:
                 best_avg_reward = avg_reward
                 agent.save(self.path)
 

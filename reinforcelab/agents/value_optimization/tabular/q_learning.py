@@ -8,7 +8,7 @@ from reinforcelab.memory_buffers import ExperienceReplay
 from reinforcelab.utils import get_state_action_sizes
 
 
-class QLearningAgent(Agent):
+class QLearning(Agent):
     """A Q Learning Agent uses a Q Table to store the values
     of each action for each state. It updates the value estimates
     by assuming that the agents will act optimistically after the first
@@ -21,8 +21,8 @@ class QLearningAgent(Agent):
         state_size, action_size = get_state_action_sizes(env)
 
         brain = QTable(state_size, action_size)
-        estimator = MaxQEstimator(brain, brain, discount_factor)
         action_selector = EpsilonGreedy(action_size)
+        estimator = MaxQEstimator(brain, brain, discount_factor)
         buffer = ExperienceReplay({"batch_size": 1, "max_size": 1})
 
         super().__init__(brain, brain, estimator, action_selector, buffer)
