@@ -4,12 +4,13 @@ from abc import ABC, abstractmethod
 
 from reinforcelab.experience import Experience
 
+
 class UpdateEstimator(ABC):
     @abstractmethod
     def __call__(self, experience: Experience) -> Tuple[Tensor, Tensor]:
         """Computes the the bellman update for an experience tuple with the given local and
-        target networks. It computes the update estimation directly from the local target, as well
-        as the bellman equation value estimation with the target network.
+        target brain. It computes the update estimation directly from the local brain, as well
+        as the bellman equation value estimation with the target brain.
 
         Args:
             experience (Experience): An instance of experience
