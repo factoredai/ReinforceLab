@@ -47,12 +47,14 @@ class BaseAgent(ABC):
 
 
 class Agent(BaseAgent):
-    def __init__(self, local_brain: Brain, target_brain: Brain, update_estimator: UpdateEstimator, action_selector: ActionSelector, memory_buffer: MemoryBuffer):
+    def __init__(self, local_brain: Brain, target_brain: Brain, update_estimator: UpdateEstimator, action_selector: ActionSelector, memory_buffer: MemoryBuffer, update_every=1):
         self.local_brain = local_brain
         self.target_brain = target_brain
         self.estimator = update_estimator
         self.action_selector = action_selector
         self.memory_buffer = memory_buffer
+        self.update_every = update_every
+        self.update_step = 0
 
     def act(self, state: Tensor, **kwargs) -> Tensor:
         qvalues = self.local_brain(state)
@@ -60,14 +62,16 @@ class Agent(BaseAgent):
 
     def update(self, experience):
         self.memory_buffer.add(experience)
-        try:
-            batch = self.memory_buffer.sample()
-        except RuntimeError:
-            # If the batch can't be obtained, skip the update proc
-            return
-        pred, target = self.estimator(batch)
-        self.local_brain.update(batch, pred, target)
-        self.target_brain.update_from(self.local_brain)
+        if self.update_step % self.update_every == 0:
+            try:
+                batch = self.memory_buffer.sample()
+            except RuntimeError:
+                # If the batch can't be obtained, skip the update proc
+                return
+            pred, target = self.estimator(batch)
+            self.local_brain.update(batch, pred, target)
+            self.target_brain.update_from(self.local_brain)
+        self.update_step += 1
 
     def save(self, path):
         os.makedirs(path, exist_ok=True)

@@ -17,10 +17,10 @@ class SARSA(Agent):
     the immediate experience.
     """
 
-    def __init__(self, env: Env, discount_factor: float = 0.999):
+    def __init__(self, env: Env, discount_factor: float = 0.999, alpha=0.01):
         state_size, action_size = get_state_action_sizes(env)
 
-        brain = QTable(state_size, action_size)
+        brain = QTable(state_size, action_size, alpha=alpha)
         action_selector = EpsilonGreedy(action_size)
         estimator = SARSAEstimator(brain, brain, discount_factor)
         buffer = OrderedBuffer({"batch_size": 2, "max_size": 2})

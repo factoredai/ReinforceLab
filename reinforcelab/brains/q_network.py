@@ -40,4 +40,4 @@ class QNetwork(nn.Module, Brain):
         optimizer.step()
 
     def update_from(self, brain: "QNetwork"):
-        soft_update(self.model, brain.model, self.alpha)
+        soft_update(brain.model, self.model, self.alpha)

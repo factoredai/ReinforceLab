@@ -57,6 +57,8 @@ def get_state_action_sizes(env: gym.Env) -> Tuple[int, int]:
     """
     if isinstance(env.observation_space, gym.spaces.Tuple):
         state_size = len(env.observation_space)
+    elif isinstance(env.observation_space, gym.spaces.Box):
+        state_size = env.observation_space.shape[0]
     else:
         state_size = env.observation_space.n
 
@@ -75,3 +77,4 @@ def soft_update(local_model: torch.nn.Module, target_model: torch.nn.Module, alp
     for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
         target_param.data.copy_(
             alpha * local_param.data + (1.0-alpha) * target_param.data)
+        continue

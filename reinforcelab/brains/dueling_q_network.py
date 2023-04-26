@@ -45,4 +45,4 @@ class DuelingQNetwork(nn.Module, Brain):
         optimizer.step()
 
     def update_from(self, brain: "DuelingQNetwork"):
-        soft_update(self.model, brain.model, self.alpha)
+        soft_update(brain.model, self.model, self.alpha)

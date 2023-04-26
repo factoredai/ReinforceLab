@@ -42,7 +42,7 @@ class Train:
                     break
 
                 loop.set_description(
-                    f"Avg 100eps Reward: {round(avg_reward, 4)} | Epsilon: {round(epsilon, 3)}")
+                    f"Avg 100eps Reward: {round(avg_reward, 4)} | Best Avg Reward: {round(best_avg_reward, 4)} | Epsilon: {round(epsilon, 3)}")
 
             # Show performance
             rewards_history.append(epoch_cum_reward)
