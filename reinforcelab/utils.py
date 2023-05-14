@@ -1,6 +1,9 @@
 import torch
 from typing import Tuple
 import gymnasium as gym
+from typing import List, Type
+import torch.nn as nn
+from itertools import zip_longest
 
 
 def tie_breaker(values: torch.Tensor) -> torch.Tensor:
@@ -44,26 +47,63 @@ def epsilon_greedy(qvalues: torch.Tensor, epsilon=0.0) -> torch.Tensor:
     return action
 
 
-def get_state_action_sizes(env: gym.Env) -> Tuple[int, int]:
-    """Returns the state and action sizes from an environment.
-    This method standardizes how to get those values from different environments,
+def get_space_size(space: gym.spaces.Space) -> int:
+    """This method standardizes how to get those values from different environments,
     each of which could have different Space definition.
 
     Args:
-        env (Env): Gymnasium environment from which to get state/action sizes
+        space (gym.spaces.Space): Gymnasium space
 
     Returns:
-        Tuple[int, int]: A tuple with state_size, action_size respectively
+        (int): the space size
     """
-    if isinstance(env.observation_space, gym.spaces.Tuple):
-        state_size = len(env.observation_space)
-    elif isinstance(env.observation_space, gym.spaces.Box):
-        state_size = env.observation_space.shape[0]
+    if isinstance(space, gym.spaces.Tuple):
+        size = len(space)
+    elif isinstance(space, gym.spaces.Box):
+        size = space.shape[0]
     else:
-        state_size = env.observation_space.n
+        size = space.n
 
-    action_size = env.action_space.n
+    return size
+
+
+def get_state_action_sizes(env: gym.Env) -> Tuple[int, int]:
+    """Returns the state and action sizes for a given environment
+
+    Args:
+        env (gym.Env): Gymnasium environment
+
+    Returns:
+        Tuple[int, int]: State and action sizes
+    """
+    state_size = get_space_size(env.observation_space)
+    action_size = get_space_size(env.action_space)
+
     return state_size, action_size
+
+
+def space_is_type(space: gym.spaces.Space, space_type: Type[gym.spaces.Space]) -> bool:
+    """Determines if a given space is constructed by a given space type. It unrolls tuple
+    spaces and only returns True if all contained spaces are of the specified type.
+
+    Args:
+        space (gym.spaces.Space): Space to analyze
+        space_type (Type[gym.spaces.Space]): Space type to identify
+
+    Returns:
+        bool: Wether the space is composed by the given type or not
+    """
+    spaces = [space]
+    while len(spaces) > 0:
+        space = spaces.pop()
+        if isinstance(space, gym.spaces.Tuple):
+            spaces += list(space)
+            continue
+
+        if not isinstance(space, space_type):
+            return False
+
+    return True
 
 
 def soft_update(local_model: torch.nn.Module, target_model: torch.nn.Module, alpha: float):
@@ -78,3 +118,23 @@ def soft_update(local_model: torch.nn.Module, target_model: torch.nn.Module, alp
         target_param.data.copy_(
             alpha * local_param.data + (1.0-alpha) * target_param.data)
         continue
+
+
+def build_fcnn(layers_sizes: List[int], activation_fn: nn.Module = nn.ReLU()) -> nn.Sequential:
+    """Builds a fully connected neural network based on the layer sizes passed.
+    The last layer are linear logits.
+
+    Args:
+        layers_sizes (List[int]): A list that specifies the size of each layer in the network
+        activation_fn (nn.Module): Activation function to use in between layers
+
+    Returns:
+        nn.Module: a sequential network with the specified layers.
+    """
+    activations = [activation_fn]*(len(layers_sizes) - 2)
+    layers_tuples = list(zip(layers_sizes, layers_sizes[1:]))
+    linear_layers = [nn.Linear(in_size, out_size)
+                     for in_size, out_size in layers_tuples]
+    layers = [x for layer in zip_longest(
+        linear_layers, activations) for x in layer if x is not None]
+    return nn.Sequential(*layers)
