@@ -1,9 +1,10 @@
 import torch
 import torch.nn as nn
-from typing import List
+from typing import List, Tuple
+import gymnasium as gym
 
 from .experience_transform import ExperienceTransform
-from reinforcelab.utils import build_fcnn
+from reinforcelab.utils import build_fcnn, space_is_type, get_state_action_sizes
 from reinforcelab.experience import Experience
 
 
@@ -24,8 +25,7 @@ class IntrinsicCuriosityModule(ExperienceTransform):
 
     def __init__(
         self,
-        state_size: int,
-        action_size: int,
+        env: gym.Env,
         state_embedding_size: int,
         state_transform_hidden_layers: List[int] = [],
         inverse_dynamics_hidden_layers: List[int] = [],
@@ -39,8 +39,7 @@ class IntrinsicCuriosityModule(ExperienceTransform):
         a given set of experiences
 
         Args:
-            state_size (int): The size of the environment state
-            action_size (int): The number of actions an agent can take
+            env (gym.Env): Gymnasium environment
             state_embedding_size (int): The size of the state embedding
             state_transform_hidden_layers (List[int], optional): List of layers to use for computing the state features. Defaults to [].
             inverse_dynamics_hidden_layers (List[int], optional): List of layers to use to compute the inverse dynamics. Defaults to [].
@@ -51,8 +50,8 @@ class IntrinsicCuriosityModule(ExperienceTransform):
             beta (float, optional): How much relevance to give to inverse vs forward error during training. Defaults to 0.5, or equal weight.
         """
         super(IntrinsicCuriosityModule, self).__init__()
-        self.state_size = state_size
-        self.action_size = action_size
+        self.env = env
+        self.state_size, self.action_size = self.__get_state_action_sizes(env)
         self.state_embedding_size = state_embedding_size
         self.state_transform_hidden_layers = state_transform_hidden_layers
         self.inverse_dynamics_hidden_layers = inverse_dynamics_hidden_layers
@@ -64,6 +63,19 @@ class IntrinsicCuriosityModule(ExperienceTransform):
         self.current_step = 0
 
         self.state_nn, self.inv_dyn_nn, self.fwd_dyn_nn = self.__build_models()
+
+    def __get_state_action_sizes(self, env: gym.Env) -> Tuple[int, int]:
+        """Returns the state and action sizes
+
+        Args:
+            env (gym.Env): Gymnasium environment
+
+        Returns:
+            Tuple[int, int]: State and action sizes
+        """
+        # If well implemented, the ICM transformation is compatible with discrete and
+        # continuous spaces. Therefore, there's no need for space type validation
+        return get_state_action_sizes(env)
 
     def __build_models(self):
         state_layers_sizes = [self.state_size] + \
@@ -90,6 +102,7 @@ class IntrinsicCuriosityModule(ExperienceTransform):
             Experience: Transformed experience with intrinsic curiosity reward
         """
         states, actions, rewards, next_states, *extra = experience
+        act_disc = space_is_type(self.env.action_space, gym.spaces.Discrete)
 
         if self.current_step % self.update_every == 0:
             self.__train(experience)
@@ -99,10 +112,11 @@ class IntrinsicCuriosityModule(ExperienceTransform):
         with torch.no_grad():
             states_emb = self.state_nn(states)
             next_states_emb = self.state_nn(next_states)
-            oh_actions = nn.functional.one_hot(
-                actions, num_classes=self.action_size)
+            if act_disc:
+                actions = nn.functional.one_hot(
+                    actions, num_classes=self.action_size)
 
-            fwd_input = torch.cat([states_emb, oh_actions.squeeze()], dim=-1)
+            fwd_input = torch.cat([states_emb, actions.squeeze()], dim=-1)
             pred_next_states_emb = self.fwd_dyn_nn(fwd_input)
 
             loss_fn = nn.MSELoss(reduce=False)
@@ -122,7 +136,11 @@ class IntrinsicCuriosityModule(ExperienceTransform):
             experience (Experience): Experience tuple to train on
         """
         states, actions, _, next_states, *_ = experience
-        inv_loss_fn = nn.CrossEntropyLoss()
+        act_disc = space_is_type(self.env.action_space, gym.spaces.Discrete)
+        if act_disc:
+            inv_loss_fn = nn.CrossEntropyLoss()
+        else:
+            inv_loss_fn = nn.MSELoss()
         fwd_loss_fn = nn.MSELoss()
         params = list(self.state_nn.parameters()) + \
             list(self.inv_dyn_nn.parameters()) + \
@@ -134,13 +152,17 @@ class IntrinsicCuriosityModule(ExperienceTransform):
 
         inv_input = torch.cat([states_emb, next_states_emb], dim=-1)
         inv_logits = self.inv_dyn_nn(inv_input)
-        pred_actions = torch.softmax(inv_logits, dim=-1)
+        if act_disc:
+            pred_actions = torch.softmax(inv_logits, dim=-1)
+        else:
+            pred_actions = inv_logits
 
         inv_loss = inv_loss_fn(pred_actions, actions.squeeze())
 
-        oh_actions = nn.functional.one_hot(
-            actions, num_classes=self.action_size)
-        fwd_input = torch.cat([states_emb, oh_actions.squeeze()], dim=-1)
+        if act_disc:
+            actions = nn.functional.one_hot(
+                actions, num_classes=self.action_size)
+        fwd_input = torch.cat([states_emb, actions.squeeze()], dim=-1)
         pred_next_states_emb = self.fwd_dyn_nn(fwd_input)
 
         fwd_loss = fwd_loss_fn(pred_next_states_emb, next_states_emb)
