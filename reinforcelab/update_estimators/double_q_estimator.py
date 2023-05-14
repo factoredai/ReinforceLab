@@ -3,16 +3,30 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 import numpy as np
+import gymnasium as gym
 
 from reinforcelab.experience import Experience
+from reinforcelab.utils import space_is_type
 from .update_estimator import UpdateEstimator
 
 
 class DoubleQEstimator(UpdateEstimator):
-    def __init__(self, local_nn: Module, target_nn: Module, gamma: float):
+    def __init__(self, env: gym.Env, local_nn: Module, target_nn: Module, gamma: float):
+        self.__validate_env(env)
         self.local_nn = local_nn
         self.target_nn = target_nn
         self.gamma = gamma
+
+    def __validate_env(self, env: gym.Env):
+        """Determines if the environment is compatible with the estimator.
+        If the action space is not Dsicrete, raises an error
+
+        Args:
+            env (gym.Env): Gym environment
+        """
+        act_disc = space_is_type(env.action_space, gym.spaces.Discrete)
+        if not act_disc:
+            raise RuntimeError("Incompatible action space")
 
     def __call__(self, experience: Experience) -> Tuple[Tensor, Tensor]:
         """Computes the action-value estimation for an experience tuple with the given local and
@@ -20,7 +34,7 @@ class DoubleQEstimator(UpdateEstimator):
         as the bellman equation value estimation with the target network.
 
         Args:
-            experience (Experienc): An experience instance, containing tensors for states, actions, 
+            experience (Experience): An experience instance, containing tensors for states, actions, 
             rewards, next_states and dones
 
         Returns:
