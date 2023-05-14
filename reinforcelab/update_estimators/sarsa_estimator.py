@@ -1,14 +1,16 @@
 from typing import Tuple
 import torch
 from torch import Tensor
+import gymnasium as gym
 
 from .update_estimator import UpdateEstimator
 from reinforcelab.experience import Experience
 from reinforcelab.brains import Brain
+from reinforcelab.utils import space_is_type
 
 
 class SARSAEstimator(UpdateEstimator):
-    def __init__(self, local_brain: Brain, target_brain: Brain, gamma: float):
+    def __init__(self, env: gym.Env, local_brain: Brain, target_brain: Brain, gamma: float):
         """Creates a vanilla estimator
 
         Args:
@@ -16,9 +18,21 @@ class SARSAEstimator(UpdateEstimator):
             target_brain (Module): the target, more stable brain
             gamma (float): Gamma parameter or discount factor
         """
+        self.__validate_env(env)
         self.local_brain = local_brain
         self.target_brain = target_brain
         self.gamma = gamma
+
+    def __validate_env(self, env: gym.Env):
+        """Determines if the environment is compatible with the estimator.
+        If the action space is not Dsicrete, raises an error
+
+        Args:
+            env (gym.Env): Gym environment
+        """
+        act_disc = space_is_type(env.action_space, gym.spaces.Discrete)
+        if not act_disc:
+            raise RuntimeError("Incompatible action space")
 
     def __call__(self, experience: Experience) -> Tuple[Tensor, Tensor]:
         """Computes the action-value estimation using the SARSA algorith. It expects

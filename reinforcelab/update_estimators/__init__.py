@@ -4,4 +4,5 @@ from .double_q_estimator import DoubleQEstimator
 from .sarsa_estimator import SARSAEstimator
 from .expected_sarsa_estimator import ExpectedSARSAEstimator
 
-__all__ = [UpdateEstimator, MaxQEstimator, DoubleQEstimator, SARSAEstimator]
+__all__ = [UpdateEstimator, MaxQEstimator, DoubleQEstimator,
+           SARSAEstimator, ExpectedSARSAEstimator]
