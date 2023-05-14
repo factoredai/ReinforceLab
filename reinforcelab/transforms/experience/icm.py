@@ -50,7 +50,7 @@ class IntrinsicCuriosityModule(ExperienceTransform):
             beta (float, optional): How much relevance to give to inverse vs forward error during training. Defaults to 0.5, or equal weight.
         """
         super(IntrinsicCuriosityModule, self).__init__()
-        self.env = env
+        self.action_space = env.action_space
         self.state_size, self.action_size = self.__get_state_action_sizes(env)
         self.state_embedding_size = state_embedding_size
         self.state_transform_hidden_layers = state_transform_hidden_layers
@@ -102,7 +102,7 @@ class IntrinsicCuriosityModule(ExperienceTransform):
             Experience: Transformed experience with intrinsic curiosity reward
         """
         states, actions, rewards, next_states, *extra = experience
-        act_disc = space_is_type(self.env.action_space, gym.spaces.Discrete)
+        act_disc = space_is_type(self.action_space, gym.spaces.Discrete)
 
         if self.current_step % self.update_every == 0:
             self.__train(experience)
@@ -136,7 +136,7 @@ class IntrinsicCuriosityModule(ExperienceTransform):
             experience (Experience): Experience tuple to train on
         """
         states, actions, _, next_states, *_ = experience
-        act_disc = space_is_type(self.env.action_space, gym.spaces.Discrete)
+        act_disc = space_is_type(self.action_space, gym.spaces.Discrete)
         if act_disc:
             inv_loss_fn = nn.CrossEntropyLoss()
         else:
