@@ -8,7 +8,7 @@ from reinforcelab.brains import Brain
 
 
 class MaxQEstimator(UpdateEstimator):
-    def __init__(self, local_brain: Brain, target_brain: Brain, gamma: float):
+    def __init__(self, local_brain: Brain, target_brain: Brain, gamma: float, transforms=None):
         """Creates a Q estimator
 
         Args:
@@ -19,6 +19,7 @@ class MaxQEstimator(UpdateEstimator):
         self.local_brain = local_brain
         self.target_brain = target_brain
         self.gamma = gamma
+        self.transforms = transforms
 
     def __call__(self, experience: Experience) -> Tuple[Tensor, Tensor]:
         """Computes the action-value estimation for an experience tuple with the given local and
@@ -31,6 +32,9 @@ class MaxQEstimator(UpdateEstimator):
         Returns:
             List[Tensor]: a list containing value estimation from the local network and the bellman update.
         """
+
+        if self.transforms:
+            experience = self.transforms(experience)
 
         states, actions, rewards, next_states, dones, *_ = experience
 
