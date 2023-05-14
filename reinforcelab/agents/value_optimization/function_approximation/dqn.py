@@ -17,15 +17,13 @@ class DQN(Agent):
     """
 
     def __init__(self, env: Env, hidden_layers=[], learning_rate=0.01, discount_factor: float = 0.999, alpha=0.03, batch_size=128, update_every=4):
-        state_size, action_size = get_state_action_sizes(env)
-
-        local_brain = QNetwork(state_size, action_size, hidden_layers=hidden_layers,
+        local_brain = QNetwork(env, hidden_layers=hidden_layers,
                                learning_rate=learning_rate, alpha=alpha)
-        target_brain = QNetwork(state_size, action_size, hidden_layers=hidden_layers,
+        target_brain = QNetwork(env, hidden_layers=hidden_layers,
                                 learning_rate=learning_rate, alpha=alpha)
-        action_selector = EpsilonGreedy(action_size)
+        action_selector = EpsilonGreedy(env)
         estimator = MaxQEstimator(
-            local_brain, target_brain, discount_factor)
+            env, local_brain, target_brain, discount_factor)
         buffer = ExperienceReplay(
             {"batch_size": batch_size, "max_size": 2**12})
 
