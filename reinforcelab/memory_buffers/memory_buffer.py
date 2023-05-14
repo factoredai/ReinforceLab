@@ -28,6 +28,14 @@ class MemoryBuffer(ABC):
         """
 
     @abstractmethod
+    def all(self) -> BatchExperience:
+        """Retrieves all experiences from the memory buffer
+
+        Returns:
+            BatchExperience: All experiences as a BatchExperience
+        """
+
+    @abstractmethod
     def __len__(self):
         """Number of samples in the memory buffer
         """
