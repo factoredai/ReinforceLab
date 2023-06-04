@@ -76,13 +76,16 @@ class Agent(BaseAgent):
     def save(self, path):
         os.makedirs(path, exist_ok=True)
         filepath = os.path.join(path, "checkpoint.dill")
+        brains = [self.local_brain, self.target_brain]
         with open(filepath, "wb") as f:
-            dill.dump(self, f)
+            dill.dump(brains, f)
 
     def load(self, path):
         filepath = os.path.join(path, "checkpoint.dill")
         with open(filepath, "rb") as f:
-            loaded_agent = dill.load(f)
+            loaded_brains = dill.load(f)
 
-        self.__dict__.clear()
-        self.__dict__.update(loaded_agent.__dict__)
+        local_brain, target_brain = loaded_brains
+
+        self.local_brain = local_brain
+        self.target_brain = target_brain

@@ -17,11 +17,18 @@ class Train:
         loop = tqdm(range(num_epochs))
         best_avg_reward = float("-inf")
         rewards_history = []
+        len_history = []
         avg_reward = 0
+        avg_len = 0
 
-        for _ in loop:
+        for epoch in loop:
             state, info = env.reset()
             epoch_cum_reward = 0
+            epoch_len = 0
+
+            env.unwrapped.render_mode = None
+            if epoch % 200 == 0:
+                env.unwrapped.render_mode = 'human'
             while True:
                 # Generate a RL interaction
                 actionable_state = torch.tensor(state).unsqueeze(0)
@@ -33,6 +40,7 @@ class Train:
                 agent.update(experience)
 
                 epoch_cum_reward += reward
+                epoch_len += 1
                 state = next_state
 
                 # Update epsilon
@@ -42,12 +50,16 @@ class Train:
                     break
 
                 loop.set_description(
-                    f"Avg 100eps Reward: {round(avg_reward, 4)} | Best Avg Reward: {round(best_avg_reward, 4)} | Epsilon: {round(epsilon, 3)}")
+                    "Len: {:.2f} | Avg: {:.3f} | Best: {:.3f} | Eps: {:.3f} | R: {:.3f}".format(avg_len, avg_reward, best_avg_reward, epsilon, reward))
 
             # Show performance
             rewards_history.append(epoch_cum_reward)
             rewards_window = rewards_history[-100:]
             avg_reward = sum(rewards_window)/len(rewards_window)
+
+            len_history.append(epoch_len)
+            len_window = len_history[-100:]
+            avg_len = sum(len_window)/len(len_window)
 
             # Save best model
             if avg_reward >= best_avg_reward:
