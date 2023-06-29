@@ -10,6 +10,12 @@ import sys
 import torch
 
 def test(env, agent, num_episodes=100):
+    """
+    This test function should be specific for the environment.
+    This test will be done using GitHub Actions and the score
+    will be stored in a leaderboard.
+    """
+    
     rng = np.random.RandomState()
     rng.seed(0) # Set random seed
     cum_reward = 0
