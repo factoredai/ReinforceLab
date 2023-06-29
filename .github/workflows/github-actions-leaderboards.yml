@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  Explore-GitHub-Actions:
+  Update-Leaderboards:
     runs-on: ubuntu-latest
     steps:
       - name: checkout repo content
