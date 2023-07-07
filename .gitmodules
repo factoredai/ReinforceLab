@@ -1,3 +1,6 @@
 [submodule "ReinforceLab-internal"]
 	path = ReinforceLab-internal
 	url = https://github.com/factoredai/ReinforceLab-internal
+[submodule "envs/tornadocliff_env"]
+	path = envs/tornadocliff_env
+	url = https://github.com/factoredai/tornadocliff_env
