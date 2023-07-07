@@ -1,0 +1,3 @@
+[submodule "ReinforceLab-internal"]
+	path = ReinforceLab-internal
+	url = https://github.com/factoredai/ReinforceLab-internal
