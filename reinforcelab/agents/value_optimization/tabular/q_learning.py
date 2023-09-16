@@ -20,7 +20,7 @@ class QLearning(Agent):
     def __init__(self, env: Env, discount_factor: float = 0.999, alpha=0.01):
         brain = QTable(env, alpha=alpha)
         action_selector = EpsilonGreedy(env)
-        estimator = MaxQEstimator(env, brain, brain, discount_factor)
+        estimator = MaxQEstimator(env, brain, discount_factor)
         buffer = OrderedBuffer({"batch_size": 1, "max_size": 1})
 
-        super().__init__(brain, brain, estimator, action_selector, buffer)
+        super().__init__(brain, estimator, action_selector, buffer)

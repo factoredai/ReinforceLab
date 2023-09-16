@@ -40,6 +40,10 @@ class QTable(Brain):
             results.append(result)
         return torch.vstack(results)
 
+    def target(self, state: Tensor) -> Tensor:
+        # QTable doesn't differentiate local from target
+        return self.__call__(state)
+
     def __state2idx(self, state: Tensor) -> Tuple:
         state_list = state.tolist()
         if isinstance(state_list, list):
@@ -55,7 +59,3 @@ class QTable(Brain):
         for single_state, single_action, new_single_val in zip(state, action, new_val):
             idx = self.__state2idx(single_state)
             self.table[idx][single_action] = new_single_val
-
-    def update_from(self, brain: "QTable"):
-        # QTables don't need an inter-brain update procedure
-        pass

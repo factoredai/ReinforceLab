@@ -21,7 +21,7 @@ class ExpectedSARSA(Agent):
         brain = QTable(env, alpha=alpha)
         action_selector = EpsilonGreedy(env)
         estimator = ExpectedSARSAEstimator(
-            env, brain, brain, action_selector, discount_factor)
+            env, brain, action_selector, discount_factor)
         buffer = OrderedBuffer({"batch_size": 1, "max_size": 1})
 
-        super().__init__(brain, brain, estimator, action_selector, buffer)
+        super().__init__(brain, estimator, action_selector, buffer)
