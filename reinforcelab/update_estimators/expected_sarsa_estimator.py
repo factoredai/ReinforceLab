@@ -11,7 +11,7 @@ from reinforcelab.utils import space_is_type
 
 
 class ExpectedSARSAEstimator(UpdateEstimator):
-    def __init__(self, env: gym.Env, local_brain: Brain, target_brain: Brain, action_selector: DiscreteActionSelector, gamma: float):
+    def __init__(self, env: gym.Env, brain: Brain, action_selector: DiscreteActionSelector, gamma: float):
         """Creates an estimator instance
 
         Args:
@@ -21,8 +21,7 @@ class ExpectedSARSAEstimator(UpdateEstimator):
             gamma (float): Gamma parameter or discount factor
         """
         self.__validate_env(env)
-        self.local_brain = local_brain
-        self.target_brain = target_brain
+        self.brain = brain
         self.action_selector = action_selector
         self.gamma = gamma
 
@@ -53,11 +52,11 @@ class ExpectedSARSAEstimator(UpdateEstimator):
 
         with torch.no_grad():
             # Implement SARSA
-            next_qs = self.target_brain(next_states)
+            next_qs = self.brain.target(next_states)
             distributions = self.action_selector.distribution(next_qs)
             next_vals = torch.mul(next_qs, distributions).sum(dim=-1)
             target = rewards + self.gamma * next_vals * (1-dones)
-        pred_values = self.local_brain(states)
+        pred_values = self.brain.local(states)
         pred = pred_values.gather(1, actions).squeeze()
 
         return pred, target

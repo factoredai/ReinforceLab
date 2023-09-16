@@ -10,7 +10,7 @@ from reinforcelab.utils import space_is_type
 
 
 class MaxQEstimator(UpdateEstimator):
-    def __init__(self, env: gym.Env, local_brain: Brain, target_brain: Brain, gamma: float, transforms=None):
+    def __init__(self, env: gym.Env, brain: Brain, gamma: float, transforms=None):
         """Creates a Q estimator
 
         Args:
@@ -19,8 +19,7 @@ class MaxQEstimator(UpdateEstimator):
             gamma (float): Gamma parameter or discount factor
         """
         self.__validate_env(env)
-        self.local_brain = local_brain
-        self.target_brain = target_brain
+        self.brain = brain
         self.gamma = gamma
         self.transforms = transforms
 
@@ -54,9 +53,9 @@ class MaxQEstimator(UpdateEstimator):
 
         with torch.no_grad():
             # Implement DQN
-            max_vals = self.target_brain(next_states).max(dim=1).values
+            max_vals = self.brain.target(next_states).max(dim=1).values
             target = rewards.squeeze() + self.gamma * max_vals * (1-dones.squeeze())
-        pred_values = self.local_brain(states)
+        pred_values = self.brain.local(states)
         pred = pred_values.gather(1, actions).squeeze()
 
         return pred, target

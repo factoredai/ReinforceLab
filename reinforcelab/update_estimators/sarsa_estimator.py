@@ -10,17 +10,15 @@ from reinforcelab.utils import space_is_type
 
 
 class SARSAEstimator(UpdateEstimator):
-    def __init__(self, env: gym.Env, local_brain: Brain, target_brain: Brain, gamma: float):
+    def __init__(self, env: gym.Env, brain: Brain, gamma: float):
         """Creates a vanilla estimator
 
         Args:
-            local_brain (Module): the local, more frequently updated brain
-            target_brain (Module): the target, more stable brain
+            brain (Brain): the brain being trained
             gamma (float): Gamma parameter or discount factor
         """
         self.__validate_env(env)
-        self.local_brain = local_brain
-        self.target_brain = target_brain
+        self.brain = brain
         self.gamma = gamma
 
     def __validate_env(self, env: gym.Env):
@@ -55,10 +53,10 @@ class SARSAEstimator(UpdateEstimator):
 
         with torch.no_grad():
             # Implement SARSA
-            next_qs = self.target_brain(next_states)
+            next_qs = self.brain.target(next_states)
             next_vals = next_qs.gather(1, next_actions).squeeze()
             target = rewards + self.gamma * next_vals * (1-dones)
-        pred_values = self.local_brain(states)
+        pred_values = self.brain.local(states)
         pred = pred_values.gather(1, actions).squeeze()
 
         return pred, target

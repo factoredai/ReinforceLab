@@ -7,14 +7,14 @@ import gymnasium as gym
 
 from reinforcelab.experience import Experience
 from reinforcelab.utils import space_is_type
+from reinforcelab.brains import Brain
 from .update_estimator import UpdateEstimator
 
 
 class DoubleQEstimator(UpdateEstimator):
-    def __init__(self, env: gym.Env, local_nn: Module, target_nn: Module, gamma: float):
+    def __init__(self, env: gym.Env, brain: Brain, gamma: float):
         self.__validate_env(env)
-        self.local_nn = local_nn
-        self.target_nn = target_nn
+        self.brain = brain
         self.gamma = gamma
 
     def __validate_env(self, env: gym.Env):
@@ -45,12 +45,12 @@ class DoubleQEstimator(UpdateEstimator):
 
         with torch.no_grad():
             # Implement DQN
-            max_actions = np.argmax(self.local_nn(
+            max_actions = np.argmax(self.brain.local(
                 next_states), axis=1).unsqueeze(1)
-            max_vals = self.target_nn(next_states)
+            max_vals = self.brain.target(next_states)
             max_vals = max_vals.gather(1, max_actions).squeeze()
             target = rewards + self.gamma * max_vals * (1-dones)
-        pred_values = self.local_nn(states)
+        pred_values = self.brain.local(states)
         pred = pred_values.gather(1, actions).squeeze()
 
         return pred, target
