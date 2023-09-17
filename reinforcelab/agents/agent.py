@@ -47,17 +47,15 @@ class BaseAgent(ABC):
 
 
 class Agent(BaseAgent):
-    def __init__(self, local_brain: Brain, target_brain: Brain, update_estimator: UpdateEstimator, action_selector: ActionSelector, memory_buffer: MemoryBuffer, update_every=1):
-        self.local_brain = local_brain
-        self.target_brain = target_brain
-        self.estimator = update_estimator
+    def __init__(self, brain: Brain, action_selector: ActionSelector, memory_buffer: MemoryBuffer, update_every=1):
+        self.brain = brain
         self.action_selector = action_selector
         self.memory_buffer = memory_buffer
         self.update_every = update_every
         self.update_step = 0
 
     def act(self, state: Tensor, **kwargs) -> Tensor:
-        qvalues = self.local_brain(state)
+        qvalues = self.brain(state)
         return self.action_selector(qvalues, **kwargs)
 
     def update(self, experience):
@@ -68,24 +66,18 @@ class Agent(BaseAgent):
             except RuntimeError:
                 # If the batch can't be obtained, skip the update proc
                 return
-            pred, target = self.estimator(batch)
-            self.local_brain.update(batch, pred, target)
-            self.target_brain.update_from(self.local_brain)
+            self.brain.update(batch)
         self.update_step += 1
 
     def save(self, path):
         os.makedirs(path, exist_ok=True)
         filepath = os.path.join(path, "checkpoint.dill")
-        brains = [self.local_brain, self.target_brain]
         with open(filepath, "wb") as f:
-            dill.dump(brains, f)
+            dill.dump(self.brain, f)
 
     def load(self, path):
         filepath = os.path.join(path, "checkpoint.dill")
         with open(filepath, "rb") as f:
-            loaded_brains = dill.load(f)
+            brain = dill.load(f)
 
-        local_brain, target_brain = loaded_brains
-
-        self.local_brain = local_brain
-        self.target_brain = target_brain
+        self.brain = brain

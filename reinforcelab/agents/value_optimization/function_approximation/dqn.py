@@ -1,5 +1,6 @@
 from gymnasium import Env
 from copy import deepcopy
+from torch import nn
 
 from reinforcelab.agents.agent import Agent
 from reinforcelab.brains import QNetwork
@@ -16,16 +17,12 @@ class DQN(Agent):
     procedure.
     """
 
-    def __init__(self, env: Env, hidden_layers=[], learning_rate=0.01, discount_factor: float = 0.999, alpha=0.03, batch_size=128, update_every=4):
-        local_brain = QNetwork(env, hidden_layers=hidden_layers,
-                               learning_rate=learning_rate, alpha=alpha)
-        target_brain = QNetwork(env, hidden_layers=hidden_layers,
-                                learning_rate=learning_rate, alpha=alpha)
+    def __init__(self, env: Env, model: nn.Module, learning_rate=0.01, discount_factor: float = 0.999, alpha=0.03, batch_size=128, update_every=4, max_buffer_size=2**12):
         action_selector = EpsilonGreedy(env)
-        estimator = MaxQEstimator(
-            env, local_brain, target_brain, discount_factor)
+        estimator = MaxQEstimator(env, discount_factor)
+        brain = QNetwork(model, estimator, learning_rate=learning_rate, alpha=alpha)
         buffer = ExperienceReplay(
-            {"batch_size": batch_size, "max_size": 2**12})
+            {"batch_size": batch_size, "max_size": max_buffer_size})
 
-        super().__init__(local_brain, target_brain, estimator,
+        super().__init__(brain,
                          action_selector, buffer, update_every=update_every)

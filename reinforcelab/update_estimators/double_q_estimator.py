@@ -7,14 +7,13 @@ import gymnasium as gym
 
 from reinforcelab.experience import Experience
 from reinforcelab.utils import space_is_type
+from reinforcelab.brains import Brain
 from .update_estimator import UpdateEstimator
 
 
 class DoubleQEstimator(UpdateEstimator):
-    def __init__(self, env: gym.Env, local_nn: Module, target_nn: Module, gamma: float):
+    def __init__(self, env: gym.Env, gamma: float):
         self.__validate_env(env)
-        self.local_nn = local_nn
-        self.target_nn = target_nn
         self.gamma = gamma
 
     def __validate_env(self, env: gym.Env):
@@ -28,7 +27,7 @@ class DoubleQEstimator(UpdateEstimator):
         if not act_disc:
             raise RuntimeError("Incompatible action space")
 
-    def __call__(self, experience: Experience) -> Tuple[Tensor, Tensor]:
+    def __call__(self, experience: Experience, brain: Brain) -> Tuple[Tensor, Tensor]:
         """Computes the action-value estimation for an experience tuple with the given local and
         target networks. It computes the value estimation directly from the local target, as well
         as the bellman equation value estimation with the target network.
@@ -45,12 +44,12 @@ class DoubleQEstimator(UpdateEstimator):
 
         with torch.no_grad():
             # Implement DQN
-            max_actions = np.argmax(self.local_nn(
+            max_actions = np.argmax(brain.local(
                 next_states), axis=1).unsqueeze(1)
-            max_vals = self.target_nn(next_states)
+            max_vals = brain.target(next_states)
             max_vals = max_vals.gather(1, max_actions).squeeze()
             target = rewards + self.gamma * max_vals * (1-dones)
-        pred_values = self.local_nn(states)
+        pred_values = brain.local(states)
         pred = pred_values.gather(1, actions).squeeze()
 
         return pred, target
