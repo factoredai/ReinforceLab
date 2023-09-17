@@ -47,9 +47,8 @@ class BaseAgent(ABC):
 
 
 class Agent(BaseAgent):
-    def __init__(self, brain: Brain, update_estimator: UpdateEstimator, action_selector: ActionSelector, memory_buffer: MemoryBuffer, update_every=1):
+    def __init__(self, brain: Brain, action_selector: ActionSelector, memory_buffer: MemoryBuffer, update_every=1):
         self.brain = brain
-        self.estimator = update_estimator
         self.action_selector = action_selector
         self.memory_buffer = memory_buffer
         self.update_every = update_every
@@ -67,8 +66,7 @@ class Agent(BaseAgent):
             except RuntimeError:
                 # If the batch can't be obtained, skip the update proc
                 return
-            pred, target = self.estimator(batch)
-            self.brain.update(batch, pred, target)
+            self.brain.update(batch)
         self.update_step += 1
 
     def save(self, path):

@@ -10,16 +10,13 @@ from reinforcelab.utils import space_is_type
 
 
 class MaxQEstimator(UpdateEstimator):
-    def __init__(self, env: gym.Env, brain: Brain, gamma: float, transforms=None):
+    def __init__(self, env: gym.Env, gamma: float, transforms=None):
         """Creates a Q estimator
 
         Args:
-            local_brain (Module): the local, more frequently updated brain
-            target_brain (Module): the target, more stable brain
             gamma (float): Gamma parameter or discount factor
         """
         self.__validate_env(env)
-        self.brain = brain
         self.gamma = gamma
         self.transforms = transforms
 
@@ -34,7 +31,7 @@ class MaxQEstimator(UpdateEstimator):
         if not act_disc:
             raise RuntimeError("Incompatible action space")
 
-    def __call__(self, experience: Experience) -> Tuple[Tensor, Tensor]:
+    def __call__(self, experience: Experience, brain: Brain) -> Tuple[Tensor, Tensor]:
         """Computes the action-value estimation for an experience tuple with the given local and
         target networks. It computes the value estimation directly from the local target, as well
         as the bellman equation value estimation with the target network.
@@ -53,9 +50,9 @@ class MaxQEstimator(UpdateEstimator):
 
         with torch.no_grad():
             # Implement DQN
-            max_vals = self.brain.target(next_states).max(dim=1).values
+            max_vals = brain.target(next_states).max(dim=1).values
             target = rewards.squeeze() + self.gamma * max_vals * (1-dones.squeeze())
-        pred_values = self.brain.local(states)
+        pred_values = brain.local(states)
         pred = pred_values.gather(1, actions).squeeze()
 
         return pred, target

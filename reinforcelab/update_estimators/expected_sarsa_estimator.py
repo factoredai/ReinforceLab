@@ -11,17 +11,14 @@ from reinforcelab.utils import space_is_type
 
 
 class ExpectedSARSAEstimator(UpdateEstimator):
-    def __init__(self, env: gym.Env, brain: Brain, action_selector: DiscreteActionSelector, gamma: float):
+    def __init__(self, env: gym.Env, action_selector: DiscreteActionSelector, gamma: float):
         """Creates an estimator instance
 
         Args:
-            local_brain (Brain): the local, more frequently updated brain
-            target_brain (Brain): the target, more stable brain
             action_selector (ActionSelector): the target, more stable brain
             gamma (float): Gamma parameter or discount factor
         """
         self.__validate_env(env)
-        self.brain = brain
         self.action_selector = action_selector
         self.gamma = gamma
 
@@ -36,7 +33,7 @@ class ExpectedSARSAEstimator(UpdateEstimator):
         if not act_disc:
             raise RuntimeError("Incompatible action space")
 
-    def __call__(self, experience: Experience) -> Tuple[Tensor, Tensor]:
+    def __call__(self, experience: Experience, brain: Brain) -> Tuple[Tensor, Tensor]:
         """Computes the action-value estimation using the Expected SARSA algorith.
         It uses the action distribution (provided by the action_selector) to compute the
         expected value for the next state
@@ -52,11 +49,11 @@ class ExpectedSARSAEstimator(UpdateEstimator):
 
         with torch.no_grad():
             # Implement SARSA
-            next_qs = self.brain.target(next_states)
+            next_qs = brain.target(next_states)
             distributions = self.action_selector.distribution(next_qs)
             next_vals = torch.mul(next_qs, distributions).sum(dim=-1)
             target = rewards + self.gamma * next_vals * (1-dones)
-        pred_values = self.brain.local(states)
+        pred_values = brain.local(states)
         pred = pred_values.gather(1, actions).squeeze()
 
         return pred, target

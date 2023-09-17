@@ -10,15 +10,13 @@ from reinforcelab.utils import space_is_type
 
 
 class SARSAEstimator(UpdateEstimator):
-    def __init__(self, env: gym.Env, brain: Brain, gamma: float):
+    def __init__(self, env: gym.Env, gamma: float):
         """Creates a vanilla estimator
 
         Args:
-            brain (Brain): the brain being trained
             gamma (float): Gamma parameter or discount factor
         """
         self.__validate_env(env)
-        self.brain = brain
         self.gamma = gamma
 
     def __validate_env(self, env: gym.Env):
@@ -28,11 +26,11 @@ class SARSAEstimator(UpdateEstimator):
         Args:
             env (gym.Env): Gym environment
         """
-        act_disc = space_is_type(env.action_space, gym.spaces.Discrete)
-        if not act_disc:
+        act_discrete = space_is_type(env.action_space, gym.spaces.Discrete)
+        if not act_discrete:
             raise RuntimeError("Incompatible action space")
 
-    def __call__(self, experience: Experience) -> Tuple[Tensor, Tensor]:
+    def __call__(self, experience: Experience, brain: Brain) -> Tuple[Tensor, Tensor]:
         """Computes the action-value estimation using the SARSA algorith. It expects
         the experience to come in order so that it can extract the next_action.
 
@@ -53,10 +51,10 @@ class SARSAEstimator(UpdateEstimator):
 
         with torch.no_grad():
             # Implement SARSA
-            next_qs = self.brain.target(next_states)
+            next_qs = brain.target(next_states)
             next_vals = next_qs.gather(1, next_actions).squeeze()
             target = rewards + self.gamma * next_vals * (1-dones)
-        pred_values = self.brain.local(states)
+        pred_values = brain.local(states)
         pred = pred_values.gather(1, actions).squeeze()
 
         return pred, target

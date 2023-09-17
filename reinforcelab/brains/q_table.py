@@ -6,11 +6,13 @@ import gymnasium as gym
 
 from .brain import Brain
 from reinforcelab.utils import space_is_type, get_state_action_sizes
+from reinforcelab.update_estimators import UpdateEstimator
 
 
 class QTable(Brain):
-    def __init__(self, env: gym.Env, alpha=0.01):
+    def __init__(self, env: gym.Env, estimator: UpdateEstimator, alpha=0.01):
         self.state_size, self.action_size = self.__get_state_action_sizes(env)
+        self.estimator = estimator
         self.alpha = alpha
         self.table = defaultdict(lambda: torch.zeros(self.action_size))
 
@@ -51,8 +53,9 @@ class QTable(Brain):
         else:
             return tuple([state_list])
 
-    def update(self, experience, pred, target):
+    def update(self, experience):
         state, action, *_ = experience
+        target, pred = self.estimator(experience, self)
         td_error = target - pred
         new_val = pred + self.alpha * td_error
         # Assume that a batch was passed

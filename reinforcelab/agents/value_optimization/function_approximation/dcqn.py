@@ -19,15 +19,13 @@ class DCQN(Agent):
     """
 
     def __init__(self, env: Env, model: nn.Module, learning_rate=0.01, discount_factor: float = 0.999, alpha=0.03, batch_size=128, update_every=4, max_buffer_size=2**12):
-        brain = QNetwork(env, model=model,
-                               learning_rate=learning_rate, alpha=alpha)
         action_selector = EpsilonGreedy(env)
         icm = IntrinsicCuriosityModule(
             env, 4, learning_rate=0.0001, state_transform_hidden_layers=[4, 4])
         buffer = ExperienceReplay(
             {"batch_size": batch_size, "max_size": max_buffer_size, "transform": icm})
-        estimator = MaxQEstimator(
-            env, brain, discount_factor)
+        estimator = MaxQEstimator(env, discount_factor)
+        brain = QNetwork(model, estimator, learning_rate, alpha)
 
-        super().__init__(brain, estimator,
+        super().__init__(brain,
                          action_selector, buffer, update_every=update_every)

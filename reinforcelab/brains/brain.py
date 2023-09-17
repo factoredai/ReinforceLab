@@ -39,14 +39,12 @@ class Brain(metaclass=ABCMeta):
         Returns:
             Tensor: Result of the computation over the state
         """
+        return self.__call__(state)
 
     @abstractmethod
-    def update(self, experience: Experience, pred: Tensor, target: Tensor):
-        """Updates the brain estimation given the current state computation and
-        the expected state computation.
+    def update(self, experience: Experience):
+        """Updates the brain estimation given the passed experience
 
         Args:
             experience (Experience): An experience instance
-            pred (Tensor): Current estimation for a given state
-            target (Tensor): Expected estimation for the same given state
         """
