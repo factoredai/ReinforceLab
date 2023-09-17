@@ -20,8 +20,8 @@ class Brain(metaclass=ABCMeta):
 
     @abstractmethod
     def target(self, state: Tensor) -> Tensor:
-        """Performs a computation over a state using the target model. Used for
-        computing error estimation and obtaining training gradients
+        """Performs a computation over a state to determine the next actions
+        according to the target function.
 
         Args:
             state (Tensor): a tensor description of the state
@@ -30,16 +30,19 @@ class Brain(metaclass=ABCMeta):
             Tensor: Result of the computation over the state
         """
 
-    def local(self, state: Tensor) -> Tensor:
-        """Alias for __call__
+
+    @abstractmethod
+    def action_value(self, state: Tensor, action: Tensor, target: bool = False) -> Tensor:
+        """Obtains the State-Action value for a given state and action
 
         Args:
-            state (Tensor): a tensor description of the state
+            state (Tensor): state or observation
+            action (Tensor): action performed on that state
+            target (bool): Wether to obtain the value from the target network. Defaults to False
 
         Returns:
-            Tensor: Result of the computation over the state
+            Tensor: Value for the given state and action
         """
-        return self.__call__(state)
 
     @abstractmethod
     def update(self, experience: Experience):

@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torch import Tensor
 import gymnasium as gym
 from typing import Tuple
 from copy import deepcopy
@@ -25,11 +26,21 @@ class QNetwork(Brain):
     def target(self, state):
         return self.target_model(state)
 
+    def action_value(self, state: Tensor, action: Tensor, target: bool = False) -> Tensor:
+        if target:
+            q = self.target(state)
+        else:
+            q =self.local(state)
+        return q.gather(1, action).squeeze()
+
     def update(self, experience: Experience):
         optimizer = torch.optim.Adam(self.local_model.parameters(), lr=self.learning_rate)
         loss = nn.MSELoss()
 
-        pred, target = self.estimator(experience, self)
+        target = self.estimator(experience, self)
+
+        states, actions, *_ = experience
+        pred = self.local(states).gather(1, actions).squeeze()
         loss_val = loss(pred, target)
         optimizer.zero_grad()
         loss_val.backward()

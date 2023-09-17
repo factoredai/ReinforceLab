@@ -8,10 +8,8 @@ from reinforcelab.brains import Brain
 
 class UpdateEstimator(ABC):
     @abstractmethod
-    def __call__(self, experience: Experience, brain: Brain) -> Tuple[Tensor, Tensor]:
-        """Computes the the bellman update for an experience tuple with the given local and
-        target brain. It computes the update estimation directly from the local brain, as well
-        as the bellman equation value estimation with the target brain.
+    def __call__(self, experience: Experience, brain: Brain) -> Tensor:
+        """Computes a value estimation for the current experience
 
         Args:
             experience (Experience): An instance of experience
@@ -19,5 +17,5 @@ class UpdateEstimator(ABC):
             brain (Brain): A brain instance for computing estimations from it
 
         Returns:
-            Tuple[Tensor, Tensor]: a list containing value estimation from the local network and the bellman update.
+            Tensor: Estimation of the experience value according to the current policy
         """

@@ -9,30 +9,19 @@ from reinforcelab.brains import Brain
 from reinforcelab.utils import space_is_type
 
 
-class SARSAEstimator(UpdateEstimator):
+class SARSEstimator(UpdateEstimator):
     def __init__(self, env: gym.Env, gamma: float):
-        """Creates a vanilla estimator
+        """Creates a SARS estimator
 
         Args:
             gamma (float): Gamma parameter or discount factor
         """
-        self.__validate_env(env)
         self.gamma = gamma
 
-    def __validate_env(self, env: gym.Env):
-        """Determines if the environment is compatible with the estimator.
-        If the action space is not Dsicrete, raises an error
-
-        Args:
-            env (gym.Env): Gym environment
-        """
-        act_discrete = space_is_type(env.action_space, gym.spaces.Discrete)
-        if not act_discrete:
-            raise RuntimeError("Incompatible action space")
-
     def __call__(self, experience: Experience, brain: Brain) -> Tensor:
-        """Computes the action-value estimation using the SARSA algorith. It expects
-        the experience to come in order so that it can extract the next_action.
+        """Computes the action-value estimation using the SARS algorith. It
+        approximates the SARSA algorithm by generating the next actions with
+        the current policy
 
         Args:
             experience (Experience): An ordered experience batch
@@ -42,12 +31,8 @@ class SARSAEstimator(UpdateEstimator):
         """
 
         states, actions, rewards, next_states, dones, *_ = experience
-        next_actions = actions[1:]
-        states = states[:-1]
-        actions = actions[:-1]
-        rewards = rewards[:-1]
-        next_states = next_states[:-1]
-        dones = dones[:-1]
+        # Generate the next actions according to the current policy
+        next_actions = brain(next_states)
 
         with torch.no_grad():
             # Implement SARSA

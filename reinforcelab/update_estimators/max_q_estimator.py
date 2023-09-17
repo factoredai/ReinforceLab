@@ -31,7 +31,7 @@ class MaxQEstimator(UpdateEstimator):
         if not act_disc:
             raise RuntimeError("Incompatible action space")
 
-    def __call__(self, experience: Experience, brain: Brain) -> Tuple[Tensor, Tensor]:
+    def __call__(self, experience: Experience, brain: Brain) -> Tensor:
         """Computes the action-value estimation for an experience tuple with the given local and
         target networks. It computes the value estimation directly from the local target, as well
         as the bellman equation value estimation with the target network.
@@ -40,7 +40,7 @@ class MaxQEstimator(UpdateEstimator):
             experience (Experience): An experience instance or batch
 
         Returns:
-            List[Tensor]: a list containing value estimation from the local network and the bellman update.
+            Tensor: Max Q Value estimation for the given experience
         """
 
         if self.transforms:
@@ -50,9 +50,8 @@ class MaxQEstimator(UpdateEstimator):
 
         with torch.no_grad():
             # Implement DQN
+            # TODO: Can we generalize this?
             max_vals = brain.target(next_states).max(dim=1).values
             target = rewards.squeeze() + self.gamma * max_vals * (1-dones.squeeze())
-        pred_values = brain.local(states)
-        pred = pred_values.gather(1, actions).squeeze()
 
-        return pred, target
+        return target
