@@ -1,22 +1,20 @@
-import numpy as np
 import torch
+import random
 from collections import namedtuple, deque
 
 
 class MemoryBuffer:
-    def __init__(self, max_size, n_steps):
+    def __init__(self, max_size):
         self.experience = namedtuple(
             'Experience', ['state', 'action', 'reward', 'next_state', 'done'])
         self.experience_buffer = deque(maxlen=max_size)
-        self.n_steps = n_steps
 
     def add(self, state, action, reward, next_state, done):
         exp = self.experience(state, action, reward, next_state, done)
         self.experience_buffer.append(exp)
 
     def sample(self, batch_size):
-        batch_idxs = np.random.choice(range(len(self.experience_buffer) - self.n_steps), size=batch_size, replace=False)
-        experiences = [self.experience_buffer[idx] for idx in batch_idxs]
+        experiences = random.sample(list(self.experience_buffer), batch_size)
         states = torch.vstack([torch.tensor(exp.state)
                               for exp in experiences]).float()
         actions = torch.tensor(
