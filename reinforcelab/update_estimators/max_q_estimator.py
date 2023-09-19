@@ -50,8 +50,7 @@ class MaxQEstimator(UpdateEstimator):
 
         with torch.no_grad():
             # Implement DQN
-            # TODO: Can we generalize this?
-            max_vals = brain.target(next_states).max(dim=1).values
+            max_vals = brain.max_action(next_states, target=True).values
             target = rewards.squeeze() + self.gamma * max_vals * (1-dones.squeeze())
 
         return target

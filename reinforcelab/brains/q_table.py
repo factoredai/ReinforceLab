@@ -52,6 +52,9 @@ class QTable(Brain):
     def action_value(self, state: Tensor, action: Tensor, target: bool = False) -> Tensor:
         return self.local(state).gather(1, action).squeeze()
 
+    def max_action(self, state: Tensor, target: bool = False) -> Tensor:
+            return self(state).max(dim=1)
+
     def update(self, experience):
         states, actions, *_ = experience
         target, = self.estimator(experience, self)

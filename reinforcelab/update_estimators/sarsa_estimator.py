@@ -41,6 +41,11 @@ class SARSAEstimator(UpdateEstimator):
             Tensor: SARSA Value estimation for the given experience
         """
 
+        # TODO: Use n-step instead of ordered experience
+        # Use the last step for retrieving next actions
+        # This in turn transforms the n-step into (n-1)-step
+        # So, any SARSA implementation would require at least
+        # n=2 n-step
         states, actions, rewards, next_states, dones, *_ = experience
         next_actions = actions[1:]
         states = states[:-1]

@@ -33,6 +33,11 @@ class QNetwork(Brain):
             q =self.local(state)
         return q.gather(1, action).squeeze()
 
+    def max_action(self, state: Tensor, target: bool = False) -> Tensor:
+        if target:
+            return self.target(state).max(dim=1)
+        return self(state).max(dim=1)
+
     def update(self, experience: Experience):
         optimizer = torch.optim.Adam(self.local_model.parameters(), lr=self.learning_rate)
         loss = nn.MSELoss()

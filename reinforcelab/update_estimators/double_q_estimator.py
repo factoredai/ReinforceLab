@@ -44,11 +44,8 @@ class DoubleQEstimator(UpdateEstimator):
 
         with torch.no_grad():
             # Implement DQN
-            # TODO: Can we generalize this?
-            max_actions = np.argmax(brain.local(
-                next_states), axis=1).unsqueeze(1)
-            max_vals = brain.target(next_states)
-            max_vals = max_vals.gather(1, max_actions).squeeze()
+            max_actions = brain.max_action(next_states).unsqueeze(1)
+            max_vals = brain.action_value(next_states, max_actions).squeeze()
             target = rewards + self.gamma * max_vals * (1-dones)
 
         return target

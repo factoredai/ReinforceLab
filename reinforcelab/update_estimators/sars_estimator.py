@@ -32,11 +32,11 @@ class SARSEstimator(UpdateEstimator):
 
         states, actions, rewards, next_states, dones, *_ = experience
         # Generate the next actions according to the current policy
-        next_actions = brain(next_states)
 
         with torch.no_grad():
             # Implement SARSA
+            next_actions = brain.target(next_states)
             next_vals = brain.action_value(next_states, next_actions, target=True)
-            target = rewards + self.gamma * next_vals * (1-dones)
+        target = rewards + self.gamma * next_vals * (1-dones)
 
         return target
