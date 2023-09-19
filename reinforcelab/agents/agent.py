@@ -55,7 +55,7 @@ class Agent(BaseAgent):
         self.update_step = 0
 
     def act(self, state: Tensor, **kwargs) -> Tensor:
-        qvalues = self.brain(state)
+        qvalues = self.brain(state).detach()
         return self.action_selector(qvalues, **kwargs)
 
     def update(self, experience):
