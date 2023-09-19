@@ -1,5 +1,4 @@
 from gymnasium import Env
-from copy import deepcopy
 from torch import nn
 
 from reinforcelab.agents.agent import Agent
