@@ -1,3 +1,4 @@
+import cv2
 import torch
 from tqdm import tqdm
 from gymnasium import Env
@@ -19,14 +20,19 @@ class Test:
         for epoch in loop:
             state, info = env.reset()
             epoch_cum_reward = 0
-            if epoch != 0:
-                env.unwrapped.render_mode = None
-
             while True:
+                if epoch % self.render_every == 0:
+                    img = env.render()
+                    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+                    cv2.imshow(f'Epoch {epoch}', img)
+                    cv2.waitKey(20)
+                else:
+                    cv2.destroyAllWindows()
                 actionable_state = torch.tensor(state).unsqueeze(0)
                 action = agent.act(actionable_state, epsilon=0.0)
+                action = action.reshape((-1)).numpy()
                 next_state, reward, done, truncated, info = env.step(
-                    action.item())
+                    action)
 
                 epoch_cum_reward += reward
                 state = next_state

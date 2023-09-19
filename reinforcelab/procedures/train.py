@@ -31,7 +31,7 @@ class Train:
                 if epoch % 200 == 0:
                     img = env.render()
                     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-                    cv2.imshow(f'MountainCar | Epoch {epoch}', img)
+                    cv2.imshow(f'Epoch {epoch}', img)
                     cv2.waitKey(20)
                 else:
                     cv2.destroyAllWindows()

@@ -18,6 +18,8 @@ class ActorCritic(Brain):
         self.estimator = estimator
         self.learning_rate = learning_rate
         self.alpha = alpha
+        self.actor_optimizer = torch.optim.Adam(self.local_actor_model.parameters(), lr=self.learning_rate, weight_decay=1.e-5)
+        self.critic_optimizer = torch.optim.Adam(self.local_critic_model.parameters(), lr=self.learning_rate)
 
     def __call__(self, state):
         return self.local_actor_model(state)
@@ -66,8 +68,6 @@ class ActorCritic(Brain):
 
     def update(self, experience: Experience):
         loss_fn = nn.MSELoss()
-        actor_optimizer = torch.optim.Adam(self.local_actor_model.parameters(), lr=self.learning_rate)
-        critic_optimizer = torch.optim.Adam(self.local_critic_model.parameters(), lr=self.learning_rate)
 
         critic_target = self.estimator(experience, self)
 
@@ -75,17 +75,17 @@ class ActorCritic(Brain):
         critic_pred = self.local_critic_model(states, actions)
         critic_loss = loss_fn(critic_pred, critic_target)
 
-        critic_optimizer.zero_grad()
+        self.critic_optimizer.zero_grad()
         critic_loss.backward()
-        critic_optimizer.step()
+        self.critic_optimizer.step()
 
         # Update the actor critic by maximizing the value estimate from the critic
         pred_actions = self.local(states)
         actor_loss = -self.target_critic_model(states, pred_actions).mean()
 
-        actor_optimizer.zero_grad()
+        self.actor_optimizer.zero_grad()
         actor_loss.backward()
-        actor_optimizer.step()
+        self.actor_optimizer.step()
 
         soft_update(self.local_actor_model, self.target_actor_model, self.alpha)
         soft_update(self.local_critic_model, self.target_critic_model, self.alpha)

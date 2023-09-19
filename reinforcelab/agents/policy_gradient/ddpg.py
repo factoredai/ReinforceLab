@@ -4,7 +4,7 @@ from torch import nn
 
 from reinforcelab.agents import Agent
 from reinforcelab.brains import ActorCritic
-from reinforcelab.action_selectors.continuous import ContinuousEpsilonGreedy
+from reinforcelab.action_selectors.continuous import *
 from reinforcelab.update_estimators import SARSEstimator
 from reinforcelab.memory_buffers import ExperienceReplay
 
