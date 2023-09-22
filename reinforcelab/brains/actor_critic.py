@@ -5,11 +5,11 @@ from copy import deepcopy
 
 from .brain import Brain
 from reinforcelab.experience import Experience
-from reinforcelab.update_estimators import UpdateEstimator
+from reinforcelab.estimators import Estimator
 from reinforcelab.utils import soft_update
 
 class ActorCritic(Brain):
-    def __init__(self, actor_model: nn.Module, critic_model: nn.Module, estimator: UpdateEstimator, learning_rate: 0.01, alpha: 0.001):
+    def __init__(self, actor_model: nn.Module, critic_model: nn.Module, estimator: Estimator, learning_rate: 0.01, alpha: 0.001):
         super(ActorCritic, self).__init__()
         self.local_actor_model = actor_model
         self.target_actor_model = deepcopy(actor_model)

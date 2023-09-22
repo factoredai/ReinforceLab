@@ -6,13 +6,13 @@ from typing import Tuple
 from copy import deepcopy
 
 from .brain import Brain
-from reinforcelab.update_estimators import UpdateEstimator
+from reinforcelab.estimators import Estimator
 from reinforcelab.experience import Experience
 from reinforcelab.utils import soft_update, build_fcnn, space_is_type, get_state_action_sizes
 
 
 class QNetwork(Brain):
-    def __init__(self, model: nn.Module, estimator: UpdateEstimator, learning_rate=0.01, alpha=0.001):
+    def __init__(self, model: nn.Module, estimator: Estimator, learning_rate=0.01, alpha=0.001):
         super(QNetwork, self).__init__()
         self.local_model = model
         self.target_model = deepcopy(model)

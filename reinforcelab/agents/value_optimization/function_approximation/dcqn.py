@@ -3,7 +3,7 @@ from torch import nn
 
 from reinforcelab.agents.agent import Agent
 from reinforcelab.brains import QNetwork
-from reinforcelab.update_estimators import MaxQEstimator
+from reinforcelab.estimators import MaxQEstimator
 from reinforcelab.transforms.experience import IntrinsicCuriosityModule
 from reinforcelab.action_selectors import EpsilonGreedy
 from reinforcelab.memory_buffers import ExperienceReplay

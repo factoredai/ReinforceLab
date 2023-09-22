@@ -3,13 +3,13 @@ import torch
 from torch import Tensor
 import gymnasium as gym
 
-from .update_estimator import UpdateEstimator
+from .estimator import Estimator
 from reinforcelab.experience import Experience
 from reinforcelab.brains import Brain
 from reinforcelab.utils import space_is_type
 
 
-class SARSEstimator(UpdateEstimator):
+class SARSEstimator(Estimator):
     def __init__(self, env: gym.Env, gamma: float):
         """Creates a SARS estimator
 

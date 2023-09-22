@@ -6,11 +6,11 @@ import gymnasium as gym
 
 from .brain import Brain
 from reinforcelab.utils import space_is_type, get_state_action_sizes
-from reinforcelab.update_estimators import UpdateEstimator
+from reinforcelab.estimators import Estimator
 
 
 class QTable(Brain):
-    def __init__(self, env: gym.Env, estimator: UpdateEstimator, alpha=0.01):
+    def __init__(self, env: gym.Env, estimator: Estimator, alpha=0.01):
         self.state_size, self.action_size = self.__get_state_action_sizes(env)
         self.estimator = estimator
         self.alpha = alpha

@@ -6,7 +6,7 @@ from reinforcelab.experience import Experience
 from reinforcelab.brains import Brain
 
 
-class UpdateEstimator(ABC):
+class Estimator(ABC):
     @abstractmethod
     def __call__(self, experience: Experience, brain: Brain) -> Tensor:
         """Computes a value estimation for the current experience
