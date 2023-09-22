@@ -6,11 +6,11 @@ import gymnasium as gym
 
 from .brain import Brain
 from reinforcelab.utils import space_is_type, get_state_action_sizes
-from reinforcelab.update_estimators import UpdateEstimator
+from reinforcelab.estimators import Estimator
 
 
 class QTable(Brain):
-    def __init__(self, env: gym.Env, estimator: UpdateEstimator, alpha=0.01):
+    def __init__(self, env: gym.Env, estimator: Estimator, alpha=0.01):
         self.state_size, self.action_size = self.__get_state_action_sizes(env)
         self.estimator = estimator
         self.alpha = alpha
@@ -42,23 +42,26 @@ class QTable(Brain):
             results.append(result)
         return torch.vstack(results)
 
-    def target(self, state: Tensor) -> Tensor:
-        # QTable doesn't differentiate local from target
-        return self.__call__(state)
-
     def __state2idx(self, state: Tensor) -> Tuple:
         state_list = state.tolist()
         if isinstance(state_list, list):
             return tuple(state_list)
         else:
             return tuple([state_list])
+        
+    def action_value(self, state: Tensor, action: Tensor, target: bool = False) -> Tensor:
+        return self.local(state).gather(1, action).squeeze()
+
+    def max_action(self, state: Tensor, target: bool = False) -> Tensor:
+            return self(state).max(dim=1)
 
     def update(self, experience):
-        state, action, *_ = experience
-        target, pred = self.estimator(experience, self)
+        states, actions, *_ = experience
+        target, = self.estimator(experience, self)
+        pred = self.local(states).gather(1, actions).squeeze()
         td_error = target - pred
         new_val = pred + self.alpha * td_error
         # Assume that a batch was passed
-        for single_state, single_action, new_single_val in zip(state, action, new_val):
+        for single_state, single_action, new_single_val in zip(states, actions, new_val):
             idx = self.__state2idx(single_state)
             self.table[idx][single_action] = new_single_val

@@ -3,13 +3,13 @@ import torch
 from torch import Tensor
 import gymnasium as gym
 
-from .update_estimator import UpdateEstimator
+from .estimator import Estimator
 from reinforcelab.experience import Experience
 from reinforcelab.brains import Brain
 from reinforcelab.utils import space_is_type
 
 
-class SARSAEstimator(UpdateEstimator):
+class SARSAEstimator(Estimator):
     def __init__(self, env: gym.Env, gamma: float):
         """Creates a vanilla estimator
 
@@ -30,7 +30,7 @@ class SARSAEstimator(UpdateEstimator):
         if not act_discrete:
             raise RuntimeError("Incompatible action space")
 
-    def __call__(self, experience: Experience, brain: Brain) -> Tuple[Tensor, Tensor]:
+    def __call__(self, experience: Experience, brain: Brain) -> Tensor:
         """Computes the action-value estimation using the SARSA algorith. It expects
         the experience to come in order so that it can extract the next_action.
 
@@ -38,9 +38,14 @@ class SARSAEstimator(UpdateEstimator):
             experience (Experience): An ordered experience batch
 
         Returns:
-            List[Tensor]: a list containing value estimation from the local network and the bellman update.
+            Tensor: SARSA Value estimation for the given experience
         """
 
+        # TODO: Use n-step instead of ordered experience
+        # Use the last step for retrieving next actions
+        # This in turn transforms the n-step into (n-1)-step
+        # So, any SARSA implementation would require at least
+        # n=2 n-step
         states, actions, rewards, next_states, dones, *_ = experience
         next_actions = actions[1:]
         states = states[:-1]
@@ -51,10 +56,7 @@ class SARSAEstimator(UpdateEstimator):
 
         with torch.no_grad():
             # Implement SARSA
-            next_qs = brain.target(next_states)
-            next_vals = next_qs.gather(1, next_actions).squeeze()
+            next_vals = brain.action_value(next_states, next_actions, target=True)
             target = rewards + self.gamma * next_vals * (1-dones)
-        pred_values = brain.local(states)
-        pred = pred_values.gather(1, actions).squeeze()
 
-        return pred, target
+        return target

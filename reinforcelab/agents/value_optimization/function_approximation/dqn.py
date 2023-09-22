@@ -4,10 +4,9 @@ from torch import nn
 
 from reinforcelab.agents.agent import Agent
 from reinforcelab.brains import QNetwork
-from reinforcelab.update_estimators import MaxQEstimator
+from reinforcelab.estimators import MaxQEstimator
 from reinforcelab.action_selectors import EpsilonGreedy
 from reinforcelab.memory_buffers import ExperienceReplay
-from reinforcelab.utils import get_state_action_sizes
 
 
 class DQN(Agent):

@@ -1,3 +1,4 @@
+import cv2
 import torch
 from tqdm import tqdm
 from gymnasium import Env
@@ -26,15 +27,19 @@ class Train:
             epoch_cum_reward = 0
             epoch_len = 0
 
-            env.unwrapped.render_mode = None
-            if epoch % 200 == 0:
-                env.unwrapped.render_mode = 'human'
             while True:
+                if epoch % 200 == 0:
+                    img = env.render()
+                    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+                    cv2.imshow(f'Epoch {epoch}', img)
+                    cv2.waitKey(20)
+                else:
+                    cv2.destroyAllWindows()
                 # Generate a RL interaction
                 actionable_state = torch.tensor(state).unsqueeze(0)
                 action = agent.act(actionable_state, epsilon=epsilon)
-                next_state, reward, done, truncated, info = env.step(
-                    action.item())
+                action = action.reshape((-1)).numpy()
+                next_state, reward, done, truncated, info = env.step(action)
                 experience = Experience(
                     state, action, reward, next_state, done)
                 agent.update(experience)

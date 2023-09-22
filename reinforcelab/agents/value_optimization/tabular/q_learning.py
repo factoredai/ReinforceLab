@@ -2,10 +2,9 @@ from gymnasium import Env
 
 from reinforcelab.agents.agent import Agent
 from reinforcelab.brains import QTable
-from reinforcelab.update_estimators import MaxQEstimator
+from reinforcelab.estimators import MaxQEstimator
 from reinforcelab.action_selectors import EpsilonGreedy
 from reinforcelab.memory_buffers import OrderedBuffer
-from reinforcelab.utils import get_state_action_sizes
 
 
 class QLearning(Agent):

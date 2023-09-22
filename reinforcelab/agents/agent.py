@@ -5,7 +5,7 @@ from typing import Union
 from abc import ABC, abstractmethod
 
 from reinforcelab.brains import Brain
-from reinforcelab.update_estimators import UpdateEstimator
+from reinforcelab.estimators import Estimator
 from reinforcelab.memory_buffers import MemoryBuffer
 from reinforcelab.action_selectors import ActionSelector
 from reinforcelab.experience import Experience
@@ -55,7 +55,7 @@ class Agent(BaseAgent):
         self.update_step = 0
 
     def act(self, state: Tensor, **kwargs) -> Tensor:
-        qvalues = self.brain(state)
+        qvalues = self.brain(state).detach()
         return self.action_selector(qvalues, **kwargs)
 
     def update(self, experience):
