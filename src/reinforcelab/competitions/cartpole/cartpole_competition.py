@@ -1,8 +1,8 @@
 from reinforcelab.competitions.builder import RLCompetition, PhaseConfig
 
 comp = RLCompetition(
-    title="My Structured RL Comp",
-    description="A cleaner implementation.",
+    title="ReinforceLab: CartPole Competition",
+    description="Train and evaluate reinforcement learning agents on the CartPole-v1 environment.",
 )
 
 comp.add_phase(PhaseConfig(

@@ -188,17 +188,23 @@ class CompetitionBuilder:
         max_steps = conv_phase.max_steps if conv_phase else 100000
         num_runs = conv_phase.num_runs if conv_phase else 5
 
-        # Generate title based on environment
+        # Use user-provided title/description, or generate defaults
         env_name = env_id.split('-')[0] if '-' in env_id else env_id
-        competition_title = f"ReinforceLab: {env_name} Competition"
         
-        # Generate short description
-        description_parts = [
-            f"Train and evaluate reinforcement learning agents on the {env_id} environment.",
-            "Phase 1 evaluates pre-trained agents on average return over multiple episodes.",
-            "Phase 2 measures training efficiency by tracking convergence time to target performance."
-        ]
-        competition_description = " ".join(description_parts)
+        if self.config.title:
+            competition_title = self.config.title
+        else:
+            competition_title = f"ReinforceLab: {env_name} Competition"
+        
+        if self.config.description:
+            competition_description = self.config.description
+        else:
+            description_parts = [
+                f"Train and evaluate reinforcement learning agents on the {env_id} environment.",
+                "Phase 1 evaluates pre-trained agents on average return over multiple episodes.",
+                "Phase 2 measures training efficiency by tracking convergence time to target performance."
+            ]
+            competition_description = " ".join(description_parts)
 
         # 6. Generate competition.yaml
         # Using the exact structure from mini-automl
@@ -306,7 +312,12 @@ class CompetitionBuilder:
         
         default_env = eval_phase.env_id if eval_phase else (conv_phase.env_id if conv_phase else "CartPole-v1")
         env_name = default_env.split('-')[0] if '-' in default_env else default_env
-        competition_title = f"ReinforceLab: {env_name} Competition"
+        
+        # Use user-provided title or generate default
+        if self.config.title:
+            competition_title = self.config.title
+        else:
+            competition_title = f"ReinforceLab: {env_name} Competition"
         
         # Phase configuration with defaults
         num_episodes = eval_phase.num_episodes if eval_phase else 100
