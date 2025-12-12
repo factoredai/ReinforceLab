@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import subprocess
 import numpy as np
 import gymnasium as gym
 from monitor import ConvergenceMonitor
@@ -14,6 +15,23 @@ NUM_RUNS = "___NUM_RUNS___"
 # ---------------------------------------------
 
 
+def install_requirements(submission_dir):
+    """Install requirements from submission's requirements.txt if it exists."""
+    requirements_file = os.path.join(submission_dir, "requirements.txt")
+    if os.path.exists(requirements_file):
+        print(f"Installing requirements from {requirements_file}...")
+        try:
+            subprocess.check_call([
+                sys.executable, "-m", "pip", "install", 
+                "-q", "--no-cache-dir", "-r", requirements_file
+            ])
+            print("Requirements installed successfully.")
+        except subprocess.CalledProcessError as e:
+            print(f"Warning: Failed to install some requirements: {e}")
+    else:
+        print("No requirements.txt found in submission.")
+
+
 def run():
     print("--- Starting Phase 2: Convergence ---")
     
@@ -24,6 +42,9 @@ def run():
 
     print(f"Submission dir: {submission_dir}")
     print(f"Files in submission: {os.listdir(submission_dir)}")
+    
+    # Install submission requirements BEFORE importing agent
+    install_requirements(submission_dir)
     
     # Change to submission directory so agent can find its files
     original_dir = os.getcwd()
