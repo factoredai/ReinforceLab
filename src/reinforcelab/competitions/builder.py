@@ -28,7 +28,7 @@ class PhaseConfig:
 class RLCompetition:
     title: str
     description: str
-    docker_image: str = "codalab/codalab-legacy:py37"
+    docker_image: str = "aristizabal95/codalab-reinforcelab:gpu310"
     phases: List[PhaseConfig] = field(default_factory=list)
     
     def add_phase(self, phase: PhaseConfig):
