@@ -5,7 +5,7 @@ from reinforcelab.brains import QTable
 from reinforcelab.update_estimators import SARSAEstimator
 from reinforcelab.action_selectors import EpsilonGreedy
 from reinforcelab.memory_buffers import OrderedBuffer
-from reinforcelab.utils import get_state_action_sizes
+from reinforcelab.modules.utils import get_state_action_sizes
 
 
 class SARSA(Agent):

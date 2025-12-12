@@ -7,7 +7,7 @@ from copy import deepcopy
 from .brain import Brain
 from reinforcelab.update_estimators import UpdateEstimator
 from reinforcelab.experience import Experience
-from reinforcelab.utils import soft_update, build_fcnn, space_is_type, get_state_action_sizes
+from reinforcelab.modules.utils import soft_update, build_fcnn, space_is_type, get_state_action_sizes
 
 
 class QNetwork(Brain):

@@ -1,20 +1,24 @@
 from typing import Tuple
 import torch
 from torch import Tensor
-from torch.nn import Module
-import numpy as np
 import gymnasium as gym
 
-from reinforcelab.experience import Experience
-from reinforcelab.utils import space_is_type
-from reinforcelab.brains import Brain
 from .update_estimator import UpdateEstimator
+from reinforcelab.experience import Experience
+from reinforcelab.brains import Brain
+from reinforcelab.modules.utils import space_is_type
 
 
-class DoubleQEstimator(UpdateEstimator):
-    def __init__(self, env: gym.Env, gamma: float):
+class MaxQEstimator(UpdateEstimator):
+    def __init__(self, env: gym.Env, gamma: float, transforms=None):
+        """Creates a Q estimator
+
+        Args:
+            gamma (float): Gamma parameter or discount factor
+        """
         self.__validate_env(env)
         self.gamma = gamma
+        self.transforms = transforms
 
     def __validate_env(self, env: gym.Env):
         """Determines if the environment is compatible with the estimator.
@@ -33,22 +37,21 @@ class DoubleQEstimator(UpdateEstimator):
         as the bellman equation value estimation with the target network.
 
         Args:
-            experience (Experience): An experience instance, containing tensors for states, actions, 
-            rewards, next_states and dones
+            experience (Experience): An experience instance or batch
 
         Returns:
-            Tuple[Tensor, Tensor]: a list containing value estimation from the local network and the bellman update.
+            List[Tensor]: a list containing value estimation from the local network and the bellman update.
         """
+
+        if self.transforms:
+            experience = self.transforms(experience)
 
         states, actions, rewards, next_states, dones, *_ = experience
 
         with torch.no_grad():
             # Implement DQN
-            max_actions = np.argmax(brain.local(
-                next_states), axis=1).unsqueeze(1)
-            max_vals = brain.target(next_states)
-            max_vals = max_vals.gather(1, max_actions).squeeze()
-            target = rewards + self.gamma * max_vals * (1-dones)
+            max_vals = brain.target(next_states).max(dim=1).values
+            target = rewards.squeeze() + self.gamma * max_vals * (1-dones.squeeze())
         pred_values = brain.local(states)
         pred = pred_values.gather(1, actions).squeeze()
 

@@ -4,7 +4,7 @@ from typing import List, Tuple
 import gymnasium as gym
 
 from .experience_transform import ExperienceTransform
-from reinforcelab.utils import build_fcnn, space_is_type, get_state_action_sizes
+from reinforcelab.modules.utils import build_fcnn, space_is_type, get_state_action_sizes
 from reinforcelab.experience import Experience
 
 

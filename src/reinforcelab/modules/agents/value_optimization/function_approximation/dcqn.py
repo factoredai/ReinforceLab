@@ -8,7 +8,7 @@ from reinforcelab.update_estimators import MaxQEstimator
 from reinforcelab.transforms.experience import IntrinsicCuriosityModule
 from reinforcelab.action_selectors import EpsilonGreedy
 from reinforcelab.memory_buffers import ExperienceReplay
-from reinforcelab.utils import get_state_action_sizes
+from reinforcelab.modules.utils import get_state_action_sizes
 
 
 class DCQN(Agent):
