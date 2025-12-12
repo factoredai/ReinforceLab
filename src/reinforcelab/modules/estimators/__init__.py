@@ -5,5 +5,5 @@ from .sarsa_estimator import SARSAEstimator
 from .sars_estimator import SARSEstimator
 from .expected_sarsa_estimator import ExpectedSARSAEstimator
 
-__all__ = [Estimator, MaxQEstimator, DoubleQEstimator,
-           SARSAEstimator, SARSEstimator, ExpectedSARSAEstimator]
+__all__ = ["Estimator", "MaxQEstimator", "DoubleQEstimator",
+           "SARSAEstimator", "SARSEstimator", "ExpectedSARSAEstimator"]

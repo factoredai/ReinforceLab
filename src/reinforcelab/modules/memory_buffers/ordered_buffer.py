@@ -1,7 +1,7 @@
 from collections import deque
 
 from .memory_buffer import MemoryBuffer
-from reinforcelab.experience import Experience, BatchExperience
+from reinforcelab.modules.experience import Experience, BatchExperience
 
 
 class OrderedBuffer(MemoryBuffer):

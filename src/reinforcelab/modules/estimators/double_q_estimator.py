@@ -1,14 +1,10 @@
-from typing import Tuple
 import torch
 from torch import Tensor
-from torch.nn import Module
-import numpy as np
 import gymnasium as gym
 
-from reinforcelab.experience import Experience
-from reinforcelab.modules.utils import space_is_type
-from reinforcelab.brains import Brain
-from .estimator import Estimator
+from reinforcelab.modules.experience import Experience
+from reinforcelab.modules.brains import Brain
+from reinforcelab.modules.estimators import Estimator
 
 
 class DoubleQEstimator(Estimator):
@@ -28,7 +24,7 @@ class DoubleQEstimator(Estimator):
             Tensor: Double Q Value estimation for the given experience and policy
         """
 
-        states, actions, rewards, next_states, dones, *_ = experience
+        _, _, rewards, next_states, dones, *_ = experience
 
         with torch.no_grad():
             # Implement DQN

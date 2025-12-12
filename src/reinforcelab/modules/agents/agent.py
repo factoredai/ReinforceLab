@@ -1,14 +1,12 @@
 import os
 import dill
 from torch import Tensor
-from typing import Union
 from abc import ABC, abstractmethod
 
-from reinforcelab.brains import Brain
-from reinforcelab.estimators import Estimator
-from reinforcelab.memory_buffers import MemoryBuffer
-from reinforcelab.action_selectors import ActionSelector
-from reinforcelab.experience import Experience
+from reinforcelab.modules.brains import Brain
+from reinforcelab.modules.memory_buffers import MemoryBuffer
+from reinforcelab.modules.action_selectors import ActionSelector
+from reinforcelab.modules.experience import Experience
 
 
 class BaseAgent(ABC):

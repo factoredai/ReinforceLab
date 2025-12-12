@@ -1,6 +1,6 @@
 from tqdm import tqdm
 import gymnasium as gym
-from q_learning import QLearningAgent
+from .q_learning import QLearningAgent
 
 
 def train(env, agent, path, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-6, min_epsilon=.01, ):

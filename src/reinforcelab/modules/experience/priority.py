@@ -1,5 +1,6 @@
 from .experience import Experience
 
+
 class PriorityExperience(Experience):
     def __init__(self, state, action, reward, next_state, done, error):
         super().__init__(state, action, reward, next_state, done)

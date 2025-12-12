@@ -4,8 +4,8 @@ from torch import Tensor
 import gymnasium as gym
 
 from .estimator import Estimator
-from reinforcelab.experience import Experience
-from reinforcelab.brains import Brain
+from reinforcelab.modules.experience import Experience
+from reinforcelab.modules.brains import Brain
 from reinforcelab.modules.utils import space_is_type
 
 

@@ -2,8 +2,8 @@ from typing import Tuple
 from torch import Tensor
 from abc import ABC, abstractmethod
 
-from reinforcelab.experience import Experience
-from reinforcelab.brains import Brain
+from reinforcelab.modules.experience import Experience
+from reinforcelab.modules.brains import Brain
 
 
 class Estimator(ABC):

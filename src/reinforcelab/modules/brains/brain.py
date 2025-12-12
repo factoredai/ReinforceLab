@@ -1,7 +1,7 @@
 from torch import Tensor
 from abc import ABCMeta, abstractmethod
 
-from reinforcelab.experience import Experience
+from reinforcelab.modules.experience import Experience
 
 
 class Brain(metaclass=ABCMeta):
@@ -40,7 +40,6 @@ class Brain(metaclass=ABCMeta):
         Returns:
             Tensor: Result of the computation over the state
         """
-
 
     @abstractmethod
     def action_value(self, state: Tensor, action: Tensor, target: bool = False) -> Tensor:

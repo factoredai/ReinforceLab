@@ -1,9 +1,10 @@
 import cv2
 from tqdm import tqdm
 import gymnasium as gym
-from ddpg import DDPGAgent
 import numpy as np
 import torch
+
+from .ddpg import DDPGAgent
 
 
 def train(env, agent, path, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-5, min_epsilon=.01):

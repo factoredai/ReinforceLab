@@ -4,9 +4,9 @@ from torch import Tensor
 import gymnasium as gym
 
 from .estimator import Estimator
-from reinforcelab.experience import Experience
-from reinforcelab.brains import Brain
-from reinforcelab.action_selectors import DiscreteActionSelector
+from reinforcelab.modules.experience import Experience
+from reinforcelab.modules.brains import Brain
+from reinforcelab.modules.action_selectors import DiscreteActionSelector
 from reinforcelab.modules.utils import space_is_type
 
 
@@ -45,7 +45,7 @@ class ExpectedSARSAEstimator(Estimator):
             Tensor: Expected SARSA estimation for the given experience and policy
         """
 
-        states, actions, rewards, next_states, dones, *_ = experience
+        _, _, rewards, next_states, dones, *_ = experience
 
         with torch.no_grad():
             # Implement SARSA

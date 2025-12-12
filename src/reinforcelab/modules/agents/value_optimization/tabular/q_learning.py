@@ -1,10 +1,10 @@
 from gymnasium import Env
 
-from reinforcelab.agents.agent import Agent
-from reinforcelab.brains import QTable
-from reinforcelab.estimators import MaxQEstimator
-from reinforcelab.action_selectors import EpsilonGreedy
-from reinforcelab.memory_buffers import OrderedBuffer
+from reinforcelab.modules.agents.agent import Agent
+from reinforcelab.modules.brains import QTable
+from reinforcelab.modules.estimators import MaxQEstimator
+from reinforcelab.modules.action_selectors import EpsilonGreedy
+from reinforcelab.modules.memory_buffers import OrderedBuffer
 
 
 class QLearning(Agent):

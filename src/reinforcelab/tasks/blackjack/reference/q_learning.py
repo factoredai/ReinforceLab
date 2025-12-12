@@ -4,7 +4,7 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from reinforcelab.agents.agent import Agent
+from reinforcelab.modules.agents.agent import Agent
 
 
 class QLearningAgent(Agent):

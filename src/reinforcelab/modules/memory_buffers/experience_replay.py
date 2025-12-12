@@ -1,8 +1,8 @@
 import random
 from collections import deque
 
-from reinforcelab.memory_buffers.memory_buffer import MemoryBuffer
-from reinforcelab.experience import Experience, BatchExperience
+from reinforcelab.modules.memory_buffers.memory_buffer import MemoryBuffer
+from reinforcelab.modules.experience import Experience, BatchExperience
 
 
 class ExperienceReplay(MemoryBuffer):

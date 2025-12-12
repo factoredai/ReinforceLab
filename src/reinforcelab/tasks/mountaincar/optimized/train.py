@@ -1,10 +1,11 @@
 import cv2
 from tqdm import tqdm
 import gymnasium as gym
-from deep_q_learning import DeepQLearningAgent
 import numpy as np
 import torch
 import dill
+
+from .deep_q_learning import DeepQLearningAgent
 
 def train(env, agent, path, num_epochs=5000, epsilon=0.1, epsilon_decay=1e-5, min_epsilon=0):
     loop = tqdm(range(num_epochs))

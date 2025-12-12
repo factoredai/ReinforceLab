@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from reinforcelab.experience import Experience
+from reinforcelab.modules.experience import Experience
 
 
 class ExperienceTransform(ABC):

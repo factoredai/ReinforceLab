@@ -3,7 +3,7 @@ from .discrete_action_selector import DiscreteActionSelector
 
 import gymnasium as gym
 
-from reinforcelab.utils import tie_breaker, get_space_size, space_is_type
+from reinforcelab.modules.utils import tie_breaker, get_space_size, space_is_type
 
 
 class EpsilonGreedy(DiscreteActionSelector):

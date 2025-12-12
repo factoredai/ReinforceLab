@@ -1,6 +1,5 @@
-from torch import Tensor
 from abc import ABC, abstractmethod
-from reinforcelab.experience import Experience, BatchExperience
+from reinforcelab.modules.experience import Experience, BatchExperience
 
 
 class MemoryBuffer(ABC):

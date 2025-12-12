@@ -2,7 +2,7 @@ import cv2
 import torch
 from tqdm import tqdm
 from gymnasium import Env
-from reinforcelab.agents.agent import Agent
+from reinforcelab.modules.agents.agent import Agent
 
 
 class Test:

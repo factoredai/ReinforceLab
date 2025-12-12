@@ -1,14 +1,12 @@
 import torch
 import torch.nn as nn
 from torch import Tensor
-import gymnasium as gym
-from typing import Tuple
 from copy import deepcopy
 
 from .brain import Brain
-from reinforcelab.estimators import Estimator
-from reinforcelab.experience import Experience
-from reinforcelab.utils import soft_update, build_fcnn, space_is_type, get_state_action_sizes
+from reinforcelab.modules.estimators import Estimator
+from reinforcelab.modules.experience import Experience
+from reinforcelab.modules.utils import soft_update
 
 
 class QNetwork(Brain):
@@ -30,7 +28,7 @@ class QNetwork(Brain):
         if target:
             q = self.target(state)
         else:
-            q =self.local(state)
+            q = self.local(state)
         return q.gather(1, action).squeeze()
 
     def max_action(self, state: Tensor, target: bool = False) -> Tensor:

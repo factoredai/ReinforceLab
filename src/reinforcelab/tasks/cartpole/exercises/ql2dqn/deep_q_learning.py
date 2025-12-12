@@ -5,8 +5,8 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from reinforcelab.agents.agent import Agent
-from memory_buffer import MemoryBuffer
+from reinforcelab.modules.agents.agent import Agent
+from reinforcelab.modules.memory_buffers.memory_buffer import MemoryBuffer
 
 
 class DeepQLearningAgent(Agent):
