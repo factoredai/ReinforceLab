@@ -11,12 +11,12 @@ from reinforcelab.modules.experience import Experience
 
 class BaseAgent(ABC):
     @abstractmethod
-    def act(self, state: Tensor, epsilon: float = 0.0):
+    def act(self, state: Tensor, **kwargs):
         """Choose an action given a state
 
         Args:
-            state (Any): A representation of the state
-            epsilon (float, optional): Probability of taking an exploratory action. Defaults to 0.0.
+            state (Tensor): A representation of the state
+            **kwargs: Additional arguments to the action selector
         """
 
     @abstractmethod
