@@ -1,0 +1,15 @@
+Demo of loading content from another file.
+
+This checkpoint file demonstrates how to include additional files in your submission.
+You can replace this with your actual model weights, configuration, or any other data
+your agent needs to load.
+
+For example, you might save:
+- PyTorch model weights (.pt, .pth)
+- TensorFlow checkpoints
+- Numpy arrays (.npy)
+- JSON configuration files
+- Pickle files with trained parameters
+
+
+
