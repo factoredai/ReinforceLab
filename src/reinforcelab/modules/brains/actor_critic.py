@@ -6,7 +6,7 @@ from copy import deepcopy
 from .brain import Brain
 from reinforcelab.experience import Experience
 from reinforcelab.estimators import Estimator
-from reinforcelab.utils import soft_update
+from reinforcelab.modules.utils import soft_update
 
 class ActorCritic(Brain):
     def __init__(self, actor_model: nn.Module, critic_model: nn.Module, estimator: Estimator, learning_rate: 0.01, alpha: 0.001):

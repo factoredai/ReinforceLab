@@ -7,7 +7,7 @@ from .estimator import Estimator
 from reinforcelab.experience import Experience
 from reinforcelab.brains import Brain
 from reinforcelab.action_selectors import DiscreteActionSelector
-from reinforcelab.utils import space_is_type
+from reinforcelab.modules.utils import space_is_type
 
 
 class ExpectedSARSAEstimator(Estimator):

@@ -6,7 +6,7 @@ import numpy as np
 import gymnasium as gym
 
 from reinforcelab.experience import Experience
-from reinforcelab.utils import space_is_type
+from reinforcelab.modules.utils import space_is_type
 from reinforcelab.brains import Brain
 from .estimator import Estimator
 
