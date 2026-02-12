@@ -9,8 +9,6 @@ comp.add_phase(PhaseConfig(
     name="Performance Evaluation",
     env_id="tornadocliff_env:factoredai/TornadoCliff-v0",
     phase_type="evaluation",
-    start="1-1-2026",
-    end="1-31-2026",
 ))
 
 comp.build()
