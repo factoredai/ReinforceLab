@@ -30,7 +30,7 @@ Score = (450 + 480 + 470 + 460 + 490) / 5 = 470.0
 ## Phase 2: Training Convergence Evaluation
 
 ### Objective
-Measure how efficiently your agent can learn to reach a target performance level.
+Measure both how efficiently your agent learns and the optimized performance it achieves after training.
 
 ### Process
 1. Your agent is initialized from scratch (no pre-trained model)
@@ -39,14 +39,16 @@ Measure how efficiently your agent can learn to reach a target performance level
 4. Convergence is detected when:
    - The agent achieves a reward of at least **___GOAL_REWARD___**
    - This performance is maintained for **___STABILITY_WINDOW___** consecutive episodes
-5. The process is repeated **___NUM_RUNS___** times
-6. The final score is the **average number of steps** required for convergence across all runs
+5. After each training run, the trained agent is evaluated for **___NUM_EPISODES___** episodes to measure its optimized performance
+6. The process is repeated **___NUM_RUNS___** times
+7. Two scores are reported: **Convergence** (average steps to converge) and **Eval** (average return of trained agent)
 
 ### Scoring
-- **Score**: Average number of training steps to reach convergence
-- **Lower is better**: Agents that converge faster (in fewer steps) rank higher
-- **Leaderboard**: Sorted in ascending order
-- **Timeout**: If convergence is not reached within **___MAX_STEPS___** steps, the score is set to **___MAX_STEPS___**
+- **Convergence**: Average number of training steps to reach convergence across runs
+  - **Lower is better**: Agents that converge faster rank higher
+  - **Timeout**: If convergence is not reached within **___MAX_STEPS___** steps, a penalty is applied
+- **Eval**: Average return of the trained agent over **___NUM_EPISODES___** evaluation episodes
+  - **Higher is better**: Agents that achieve higher returns after training rank higher
 
 ### Convergence Criteria
 Convergence is achieved when:
@@ -55,16 +57,18 @@ Convergence is achieved when:
 3. The step count at which this stability is first achieved is recorded
 
 ### Example
-If your agent converges in runs requiring [5000, 5200, 4800, 5100, 4900] steps, your score would be:
+If your agent converges in runs requiring [5000, 5200, 4800, 5100, 4900] steps with eval returns [470, 485, 460, 475, 480]:
 ```
-Score = (5000 + 5200 + 4800 + 5100 + 4900) / 5 = 5000.0 steps
+Convergence = (5000 + 5200 + 4800 + 5100 + 4900) / 5 = 5000.0 steps
+Eval = (470 + 485 + 460 + 475 + 480) / 5 = 474.0
 ```
 
 ## Final Ranking
 
 Your final ranking is determined by your performance in both phases. The leaderboard displays:
 - **Phase 1 Score**: Average return (higher is better)
-- **Phase 2 Score**: Convergence steps (lower is better)
+- **Phase 2 Convergence**: Steps to converge (lower is better)
+- **Phase 2 Eval**: Trained agent's return (higher is better)
 
-Both metrics are important for a complete assessment of your agent's capabilities.
+All metrics are important for a complete assessment of your agent's capabilities.
 

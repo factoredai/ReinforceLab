@@ -168,6 +168,7 @@ class CompetitionBuilder:
                     "WINDOW": phase.stability_window,
                     "MAX_STEPS": phase.max_steps,
                     "NUM_RUNS": phase.num_runs,
+                    "NUM_EPISODES": phase.num_episodes,
                     "SEED": phase.seed
                 })
 
@@ -241,15 +242,42 @@ class CompetitionBuilder:
             ]
             competition_description = " ".join(description_parts)
 
+        # 6. Build leaderboard columns from phase types
+        lb_columns = []
+        idx = 0
+        if eval_phase:
+            lb_columns.append({
+                "title": "Score",
+                "key": "score",
+                "index": idx,
+                "sorting": "desc"
+            })
+            idx += 1
+        if conv_phase:
+            lb_columns.append({
+                "title": "Convergence",
+                "key": "convergence_score",
+                "index": idx,
+                "sorting": "asc"
+            })
+            idx += 1
+            lb_columns.append({
+                "title": "Eval",
+                "key": "eval_score",
+                "index": idx,
+                "sorting": "desc"
+            })
+        if not lb_columns:
+            lb_columns = [{"title": "Score", "key": "score", "index": 0, "sorting": "desc"}]
+
         # 6. Generate competition.yaml
-        # Using the exact structure from mini-automl
         yaml_content = {
             "version": 2,
             "title": competition_title,
             "docker_image": self.config.docker_image,
             "image": "logo.png",
             "description": competition_description,
-            "terms": "pages/terms.md",       # In pages directory
+            "terms": "pages/terms.md",
             "registration_auto_approve": False,
             "pages": [
                 {"title": "Overview", "file": "pages/overview.md"},
@@ -260,15 +288,8 @@ class CompetitionBuilder:
                     "index": 0,
                     "title": "Results",
                     "key": "Results",
-                    "submission_rule": "Force_Last",
-                    "columns": [
-                        {
-                            "title": "Score",
-                            "key": "score",
-                            "index": 0,
-                            "sorting": "desc"
-                        }
-                    ]
+                    "submission_rule": "Add",
+                    "columns": lb_columns
                 }
             ],
             "tasks": tasks_list,
@@ -406,6 +427,12 @@ class CompetitionBuilder:
             os.path.join(self.starting_kit_dir, "sample_submission"),
             'zip',
             sample_dir
+        )
+        
+        # build_submission.py for participants to create submission zips
+        self._write_file(
+            os.path.join(self.starting_kit_dir, "build_submission.py"),
+            self._read_template("build_submission.py")
         )
         
         # Getting started notebook with environment and title configured

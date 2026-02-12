@@ -16,15 +16,15 @@ In the first phase, your trained agent will be evaluated on its **average return
 - Higher scores are better (descending order on leaderboard)
 
 ### Phase 2: Training Convergence
-In the second phase, your agent will be trained from scratch, and we measure how quickly it converges to a target performance level. The score is the **number of training steps** required to reach and maintain the goal reward of **___GOAL_REWARD___** for **___STABILITY_WINDOW___** consecutive episodes.
+In the second phase, your agent will be trained from scratch. We measure both how quickly it converges and the optimized performance it achieves after training.
 
 **Key Details:**
 - Your agent will be trained from scratch (no pre-trained model)
 - Training will run for up to **___MAX_STEPS___** steps
 - The goal is to reach a reward of **___GOAL_REWARD___** and maintain it for **___STABILITY_WINDOW___** episodes
-- The score is the number of steps taken to achieve convergence
-- Lower scores (fewer steps) are better (ascending order on leaderboard)
-- The evaluation is repeated **___NUM_RUNS___** times, and the average convergence time is reported
+- After each training run, the trained agent is evaluated for **___NUM_EPISODES___** episodes
+- **Convergence** (lower is better): average steps to reach convergence across **___NUM_RUNS___** runs
+- **Eval** (higher is better): average return of the trained agent during evaluation
 
 ## Submission Format
 

@@ -342,6 +342,7 @@ build/
     │   └── terms.md
     └── starting_kit/
         ├── agent.py
+        ├── build_submission.py   # Script for participants to create submission zips
         ├── random_agent.py
         ├── monitor.py
         ├── run_local.py
