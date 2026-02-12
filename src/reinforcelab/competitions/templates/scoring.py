@@ -1,10 +1,10 @@
-import sys
 import os
 import json
 
 def run():
-    input_dir = sys.argv[1]
-    output_dir = sys.argv[2]
+    # Codabench uses fixed paths under /app (no argv)
+    input_dir = "/app/input"
+    output_dir = "/app/output"
     
     # CodaBench V2 logic: Look for ingestion output in 'res'
     score_file = os.path.join(input_dir, 'res', 'scores.json')

@@ -123,17 +123,15 @@ Configuration for a single phase (task).
 ### Build Flow
 
 1. **Clean** — Remove previous `bundle/`.
-2. **Data dirs** — Create `input_data/` and `reference_data/` (CodaBench requirements).
-3. **Scoring program** — Copy `scoring.py` into `scoring_program/`.
-4. **Tasks** — For each phase:
+2. **Scoring program** — Copy `scoring.py` into `scoring_program/`.
+3. **Tasks** — For each phase:
    - Create `ingestion_program_N/` with `program.py` (rendered from `ingestion_eval.py` or `ingestion_train.py`), `monitor.py`, `metadata.yaml`.
    - Register task and phase in the bundle metadata.
-5. **competition.yaml** — Generate CodaBench config (tasks, phases, pages, leaderboards).
-6. **Logo** — Copy `logo.png` (override or default).
-7. **Solution** — Copy `solution_random_agent.py` as `solution/agent.py`.
-8. **Pages** — Render `overview.md`, `evaluation.md`, copy `terms.md`.
-9. **Starting kit** — Build agent template, run_local, train, requirements, sample submission, notebook.
-10. **Zip** — Create `bundle.zip`.
+4. **competition.yaml** — Generate CodaBench config (tasks, phases, pages, leaderboards).
+5. **Logo** — Copy `logo.png` (override or default).
+6. **Pages** — Render `overview.md`, `evaluation.md`, copy `terms.md`.
+7. **Starting kit** — Build agent template, run_local, train, requirements, sample submission, notebook.
+8. **Zip** — Create `bundle.zip`.
 
 ---
 
@@ -329,8 +327,6 @@ build/
 └── bundle/
     ├── competition.yaml
     ├── logo.png
-    ├── input_data/
-    ├── reference_data/
     ├── scoring_program/
     │   ├── program.py
     │   └── metadata.yaml
@@ -340,8 +336,6 @@ build/
     │   └── metadata.yaml
     ├── ingestion_program_2/
     │   └── ...
-    ├── solution/
-    │   └── agent.py
     ├── pages/
     │   ├── overview.md
     │   ├── evaluation.md

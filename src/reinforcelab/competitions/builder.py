@@ -135,15 +135,7 @@ class CompetitionBuilder:
         # 1. Clean previous build
         if os.path.exists(self.bundle_dir): shutil.rmtree(self.bundle_dir)
         
-        # 2. Create empty input_data and reference_data (Codabench requires these to pass argv to programs)
-        input_data_dir = os.path.join(self.bundle_dir, "input_data")
-        reference_data_dir = os.path.join(self.bundle_dir, "reference_data")
-        os.makedirs(input_data_dir, exist_ok=True)
-        os.makedirs(reference_data_dir, exist_ok=True)
-        self._write_file(os.path.join(input_data_dir, ".gitkeep"), "")
-        self._write_file(os.path.join(reference_data_dir, ".gitkeep"), "")
-        
-        # 3. Build Scoring Program (Shared)
+        # 2. Build Scoring Program (Shared)
         scoring_dir = os.path.join(self.bundle_dir, "scoring_program")
         self._write_file(os.path.join(scoring_dir, "program.py"), self._read_template("scoring.py"))
         self._write_file(os.path.join(scoring_dir, "metadata.yaml"), "command: python3 program.py")
@@ -183,19 +175,20 @@ class CompetitionBuilder:
             # requirements.txt for ingestion program deps (numpy, gymnasium) - container may not have them
             requirements_content = self._read_template("requirements.txt")
             self._write_file(os.path.join(ingestion_dir, "requirements.txt"), requirements_content)
+            # run.sh: Codabench doesn't run command in a shell, so && would be passed to pip as arg
+            run_sh = "#!/bin/bash\npip install -q --no-cache-dir -r requirements.txt\nexec python3 program.py \"$@\"\n"
+            self._write_file(os.path.join(ingestion_dir, "run.sh"), run_sh)
             self._write_file(
                 os.path.join(ingestion_dir, "metadata.yaml"),
-                "command: pip install -q --no-cache-dir -r requirements.txt && python3 program.py"
+                "command: bash run.sh"
             )
 
             # --- Define Task ---
-            # input_data and reference_data required so Codabench passes argv (input_dir, output_dir, program_dir, submission_dir)
+            # RL competitions use ingestion only; Codabench uses fixed paths (/app/input_data, etc.)
             task_def = {
                 "index": task_index,
                 "name": f"{phase.name} Task",
                 "description": f"Task for {phase.name}",
-                "input_data": "input_data",
-                "reference_data": "reference_data",
                 "ingestion_program": ingestion_folder_name,
                 "scoring_program": "scoring_program"
             }

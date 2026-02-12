@@ -33,12 +33,11 @@ def install_requirements(submission_dir):
 def run():
     print("--- Starting Phase 1: Evaluation ---")
     
-    # Codabench directory structure parsing
-    # Default args: program.py input output program submission
-    input_dir = sys.argv[1]
-    output_dir = sys.argv[2]
-    program_dir = sys.argv[3]
-    submission_dir = sys.argv[4]
+    # Codabench uses fixed paths under /app (no argv)
+    input_dir = "/app/input_data"
+    output_dir = "/app/output"
+    program_dir = "/app/program"
+    submission_dir = "/app/ingested_program"
 
     print(f"Submission dir: {submission_dir}")
     print(f"Files in submission: {os.listdir(submission_dir)}")
