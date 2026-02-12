@@ -112,8 +112,8 @@ Configuration for a single phase (task).
 | `stability_window` | int | 100 | Episodes to maintain goal for convergence |
 | `max_steps` | int | 100000 | Max training steps for convergence phase |
 | `num_runs` | int | 5 | Runs for convergence phase (score = mean) |
-| `start` | str | "1-1-2024" | Phase start date (M-D-YYYY) |
-| `end` | str \| None | None | Phase end date (optional) |
+| `start` | str \| None | None | Phase start date (M-D-YYYY); None = today |
+| `end` | str \| None | None | Phase end date (M-D-YYYY); None = start + 2 weeks |
 
 ### Phase Types
 

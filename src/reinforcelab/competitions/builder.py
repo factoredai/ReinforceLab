@@ -3,12 +3,43 @@ import shutil
 import yaml
 import pathlib
 import inspect
+from datetime import date, timedelta
 from dataclasses import dataclass, field
 from typing import List, Optional
 
 # ==========================
 # Configuration Classes
 # ==========================
+
+
+def _parse_m_d_yyyy(s: str) -> date:
+    """Parse M-D-YYYY format to date."""
+    parts = s.split("-")
+    return date(int(parts[2]), int(parts[0]), int(parts[1]))
+
+
+def _format_m_d_yyyy(d: date) -> str:
+    """Format date as M-D-YYYY."""
+    return f"{d.month}-{d.day}-{d.year}"
+
+
+def _get_phase_dates(phase: "PhaseConfig") -> tuple[str, str]:
+    """Resolve start/end dates: default start=today, default end=start+2 weeks."""
+    if phase.start is not None:
+        start_date = _parse_m_d_yyyy(phase.start)
+        start_str = phase.start
+    else:
+        start_date = date.today()
+        start_str = _format_m_d_yyyy(start_date)
+
+    if phase.end is not None:
+        end_str = phase.end
+    else:
+        end_date = start_date + timedelta(days=14)
+        end_str = _format_m_d_yyyy(end_date)
+
+    return start_str, end_str
+
 
 @dataclass
 class PhaseConfig:
@@ -20,9 +51,10 @@ class PhaseConfig:
     stability_window: int = 100
     max_steps: int = 100000
     num_runs: int = 5
+    seed: int = 42  # For reproducibility
     color: str = "green"
-    start: str = "1-1-2024"  # Start date in M-D-YYYY format
-    end: Optional[str] = None  # End date in M-D-YYYY format (optional)
+    start: Optional[str] = None  # Start date in M-D-YYYY format; None = today
+    end: Optional[str] = None  # End date in M-D-YYYY format; None = start + 2 weeks
 
 @dataclass
 class RLCompetition:
@@ -103,18 +135,18 @@ class CompetitionBuilder:
         # 1. Clean previous build
         if os.path.exists(self.bundle_dir): shutil.rmtree(self.bundle_dir)
         
-        # 2. Setup Data Directories
-        # CodaBench requires these folders to exist, even if empty.
-        os.makedirs(os.path.join(self.bundle_dir, "input_data"), exist_ok=True)
-        self._write_file(os.path.join(self.bundle_dir, "input_data", "placeholder.txt"), "no data needed")
+        # 2. Create empty input_data and reference_data (Codabench requires these to pass argv to programs)
+        input_data_dir = os.path.join(self.bundle_dir, "input_data")
+        reference_data_dir = os.path.join(self.bundle_dir, "reference_data")
+        os.makedirs(input_data_dir, exist_ok=True)
+        os.makedirs(reference_data_dir, exist_ok=True)
+        self._write_file(os.path.join(input_data_dir, ".gitkeep"), "")
+        self._write_file(os.path.join(reference_data_dir, ".gitkeep"), "")
         
-        os.makedirs(os.path.join(self.bundle_dir, "reference_data"), exist_ok=True)
-        self._write_file(os.path.join(self.bundle_dir, "reference_data", "gold.txt"), "no references needed")
-
         # 3. Build Scoring Program (Shared)
         scoring_dir = os.path.join(self.bundle_dir, "scoring_program")
         self._write_file(os.path.join(scoring_dir, "program.py"), self._read_template("scoring.py"))
-        self._write_file(os.path.join(scoring_dir, "metadata.yaml"), "command: python program.py")
+        self._write_file(os.path.join(scoring_dir, "metadata.yaml"), "command: python3 program.py")
 
         # 4. Build Tasks (One Ingestion Program per Phase = One Task)
         tasks_list = []
@@ -134,7 +166,8 @@ class CompetitionBuilder:
             if phase.phase_type == 'evaluation':
                 code = self._render("ingestion_eval.py", {
                     "ENV_ID": phase.env_id,
-                    "NUM_EPISODES": phase.num_episodes
+                    "NUM_EPISODES": phase.num_episodes,
+                    "SEED": phase.seed
                 })
             elif phase.phase_type == 'convergence':
                 code = self._render("ingestion_train.py", {
@@ -142,38 +175,47 @@ class CompetitionBuilder:
                     "GOAL": phase.goal_reward,
                     "WINDOW": phase.stability_window,
                     "MAX_STEPS": phase.max_steps,
-                    "NUM_RUNS": phase.num_runs
+                    "NUM_RUNS": phase.num_runs,
+                    "SEED": phase.seed
                 })
 
             self._write_file(os.path.join(ingestion_dir, "program.py"), code)
-            self._write_file(os.path.join(ingestion_dir, "metadata.yaml"), "command: python program.py")
+            # requirements.txt for ingestion program deps (numpy, gymnasium) - container may not have them
+            requirements_content = self._read_template("requirements.txt")
+            self._write_file(os.path.join(ingestion_dir, "requirements.txt"), requirements_content)
+            self._write_file(
+                os.path.join(ingestion_dir, "metadata.yaml"),
+                "command: pip install -q --no-cache-dir -r requirements.txt && python3 program.py"
+            )
 
             # --- Define Task ---
+            # input_data and reference_data required so Codabench passes argv (input_dir, output_dir, program_dir, submission_dir)
             task_def = {
                 "index": task_index,
                 "name": f"{phase.name} Task",
                 "description": f"Task for {phase.name}",
-                "input_data": "input_data",         # points to folder at root
-                "reference_data": "reference_data", # points to folder at root
-                "ingestion_program": ingestion_folder_name, # points to folder at root
-                "scoring_program": "scoring_program"        # points to folder at root
+                "input_data": "input_data",
+                "reference_data": "reference_data",
+                "ingestion_program": ingestion_folder_name,
+                "scoring_program": "scoring_program"
             }
             tasks_list.append(task_def)
 
             # --- Define Phase ---
+            # starting_kit must be at phase level per Codabench YAML structure
+            start_str, end_str = _get_phase_dates(phase)
             phase_def = {
                 "index": task_index,
                 "name": phase.name,
                 "description": f"{phase.name} phase: {phase.phase_type} on {phase.env_id}",
-                "start": phase.start,
+                "start": start_str,
+                "end": end_str,
                 "max_submissions_per_day": 5,
                 "max_submissions": 100,
                 "execution_time_limit": 600,
                 "tasks": [task_index],
-                "solutions": []
+                "starting_kit": "starting_kit"
             }
-            if phase.end:
-                phase_def["end"] = phase.end
             phases_list.append(phase_def)
 
         # 5. Extract phase information for page templates
@@ -236,16 +278,8 @@ class CompetitionBuilder:
                     ]
                 }
             ],
-            "starting_kit": "starting_kit",
             "tasks": tasks_list,
             "phases": phases_list,
-            "solutions": [
-                {
-                    "index": 0,
-                    "tasks": list(range(len(tasks_list))),  # Apply to all tasks
-                    "path": "solution/"
-                }
-            ]
         }
         
         with open(os.path.join(self.bundle_dir, "competition.yaml"), "w") as f:
@@ -256,15 +290,7 @@ class CompetitionBuilder:
         if logo_path:
             shutil.copy(logo_path, os.path.join(self.bundle_dir, "logo.png"))
 
-        # 8. Create Sample Solution (Random Agent)
-        solution_dir = os.path.join(self.bundle_dir, "solution")
-        os.makedirs(solution_dir, exist_ok=True)
-        self._write_file(
-            os.path.join(solution_dir, "agent.py"),
-            self._read_template("solution_random_agent.py")
-        )
-
-        # 9. Create Pages Directory and Render Templates
+        # 8. Create Pages Directory and Render Templates
         pages_dir = os.path.join(self.bundle_dir, "pages")
         os.makedirs(pages_dir, exist_ok=True)
         
@@ -296,10 +322,10 @@ class CompetitionBuilder:
         terms_content = self._read_template("terms.md")
         self._write_file(os.path.join(pages_dir, "terms.md"), terms_content)
         
-        # 10. Build Starting Kit (inside bundle)
+        # 9. Build Starting Kit (inside bundle)
         self._build_starting_kit()
         
-        # 11. Zip Bundle
+        # 10. Zip Bundle
         shutil.make_archive(os.path.join(self.build_dir, "bundle"), 'zip', self.bundle_dir)
 
     def _build_starting_kit(self):

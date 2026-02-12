@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import random
 import subprocess
 import numpy as np
 import gymnasium as gym
@@ -8,6 +9,7 @@ import gymnasium as gym
 # --- CONFIGURATION (Injected by Framework) ---
 ENV_ID = "___ENV_ID___"
 NUM_EPISODES = "___NUM_EPISODES___"
+SEED = ___SEED___
 # ---------------------------------------------
 
 
@@ -66,6 +68,11 @@ def run():
         module = importlib.import_module("custom_env")
         env = module.make_env()
 
+    # Seed for reproducibility
+    random.seed(SEED)
+    np.random.seed(SEED)
+    env.action_space.seed(SEED)
+
     # Create and load agent
     agent = Agent(env)
     
@@ -76,7 +83,7 @@ def run():
     # Run evaluation episodes
     scores = []
     for ep in range(int(NUM_EPISODES)):
-        obs, _ = env.reset()
+        obs, _ = env.reset(seed=SEED + ep)
         done = False
         ep_score = 0
         while not done:

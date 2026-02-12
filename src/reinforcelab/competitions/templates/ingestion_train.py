@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import random
 import subprocess
 import numpy as np
 import gymnasium as gym
@@ -12,7 +13,23 @@ GOAL = "___GOAL___"
 WINDOW = "___WINDOW___"
 MAX_STEPS = "___MAX_STEPS___"
 NUM_RUNS = "___NUM_RUNS___"
+SEED = ___SEED___
 # ---------------------------------------------
+
+
+class ReseedWrapper(gym.Wrapper):
+    """Injects deterministic seeds on env.reset() for reproducibility."""
+
+    def __init__(self, env, base_seed):
+        super().__init__(env)
+        self.base_seed = base_seed
+        self.reset_count = 0
+
+    def reset(self, **kwargs):
+        if "seed" not in kwargs:
+            kwargs["seed"] = self.base_seed + self.reset_count
+            self.reset_count += 1
+        return self.env.reset(**kwargs)
 
 
 def install_requirements(submission_dir):
@@ -65,9 +82,15 @@ def run():
     window = int(WINDOW)
     max_s = int(MAX_STEPS)
 
+    seed = int(SEED)
     for i in range(runs):
         print(f"\nRun {i + 1}/{runs}")
         
+        # Seed for reproducibility (per run)
+        run_seed = seed + i
+        random.seed(run_seed)
+        np.random.seed(run_seed)
+
         # Create environment with convergence monitor
         try:
             raw_env = gym.make(ENV_ID)
@@ -76,7 +99,9 @@ def run():
             import importlib
             module = importlib.import_module("custom_env")
             raw_env = module.make_env()
-            
+
+        raw_env.action_space.seed(run_seed)
+        raw_env = ReseedWrapper(raw_env, base_seed=run_seed)
         env = ConvergenceMonitor(raw_env, goal, window, max_s)
         
         # Create fresh agent for each run
