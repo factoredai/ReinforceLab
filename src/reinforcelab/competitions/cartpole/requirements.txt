@@ -1,0 +1,5 @@
+gymnasium
+gymnasium[classic-control]
+numpy
+matplotlib>=3.9
+

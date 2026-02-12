@@ -1,0 +1,4 @@
+gymnasium
+numpy
+matplotlib>=3.9
+git+https://github.com/factoredai/tornadocliff_env
