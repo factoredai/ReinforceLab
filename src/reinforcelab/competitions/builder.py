@@ -245,28 +245,18 @@ class CompetitionBuilder:
 
         # 6. Build leaderboard columns from phase types
         lb_columns = []
-        idx = 0
-        if eval_phase:
-            lb_columns.append({
-                "title": "Score",
-                "key": "score",
-                "index": idx,
-                "sorting": "desc"
-            })
-            idx += 1
+        lb_columns.append({
+            "title": "Score",
+            "key": "score",
+            "index": 0,
+            "sorting": "desc"
+        })
         if conv_phase:
             lb_columns.append({
                 "title": "Convergence",
                 "key": "convergence_score",
-                "index": idx,
+                "index": 1,
                 "sorting": "asc"
-            })
-            idx += 1
-            lb_columns.append({
-                "title": "Eval",
-                "key": "eval_score",
-                "index": idx,
-                "sorting": "desc"
             })
         if not lb_columns:
             lb_columns = [{"title": "Score", "key": "score", "index": 0, "sorting": "desc"}]
@@ -416,7 +406,7 @@ class CompetitionBuilder:
         )
         # Create zip of submission_contents for easy upload
         shutil.make_archive(
-            os.path.join(self.starting_kit_dir, "submission_contents"),
+            os.path.join(self.starting_kit_dir, "sample_submission"),
             'zip',
             submission_dir
         )

@@ -79,7 +79,6 @@ def run():
         sys.exit(1)
 
     step_counts = []
-    eval_returns = []
     runs = int(NUM_RUNS)
     num_episodes = int(NUM_EPISODES)
     goal = float(GOAL)
@@ -127,42 +126,42 @@ def run():
             print(f"Did not converge (penalty: {conv_score:.0f})")
         step_counts.append(conv_score)
 
-        # Evaluate trained agent's performance
-        try:
-            eval_env = gym.make(ENV_ID)
-        except Exception:
-            sys.path.append(program_dir)
-            import importlib
-            module = importlib.import_module("custom_env")
-            eval_env = module.make_env()
-        eval_env.action_space.seed(run_seed)
-        ep_scores = []
-        for ep in range(num_episodes):
-            obs, _ = eval_env.reset(seed=run_seed + 1000 + ep)
-            done = False
-            ep_score = 0
-            while not done:
-                action = agent.act(obs)
-                obs, reward, terminated, truncated, _ = eval_env.step(action)
-                done = terminated or truncated
-                ep_score += reward
-            ep_scores.append(ep_score)
-        eval_return = np.mean(ep_scores)
-        eval_env.close()
-        eval_returns.append(eval_return)
-        print(f"Eval return: {eval_return:.2f}")
+    # Evaluate trained agent's performance
+    print("Loading provided trained model")
+    agent.load()
+    try:
+        eval_env = gym.make(ENV_ID)
+    except Exception:
+        sys.path.append(program_dir)
+        import importlib
+        module = importlib.import_module("custom_env")
+        eval_env = module.make_env()
+    eval_env.action_space.seed(run_seed)
+    ep_scores = []
+    for ep in range(num_episodes):
+        obs, _ = eval_env.reset(seed=run_seed + 1000 + ep)
+        done = False
+        ep_score = 0
+        while not done:
+            action = agent.act(obs)
+            obs, reward, terminated, truncated, _ = eval_env.step(action)
+            done = terminated or truncated
+            ep_score += reward
+        ep_scores.append(ep_score)
+    eval_return = np.mean(ep_scores)
+    eval_env.close()
+    print(f"Eval return: {eval_return:.2f}")
 
     convergence_score = np.mean(step_counts)
-    eval_score = np.mean(eval_returns)
     print(f"\nConvergence Score: {convergence_score:.4f} (lower is better)")
-    print(f"Eval Score: {eval_score:.4f} (higher is better)")
+    print(f"Eval Score: {eval_return:.4f} (higher is better)")
     
     # Restore directory and write output
     os.chdir(original_dir)
     with open(os.path.join(output_dir, "scores.json"), "w") as f:
         json.dump({
             "convergence_score": float(convergence_score),
-            "eval_score": float(eval_score),
+            "eval_score": float(eval_return),
         }, f)
 
 
