@@ -8,12 +8,18 @@ This script runs the same evaluation that will happen when you submit:
 Usage:
     python run_local.py                    # Run all phases
     python run_local.py --phase eval       # Run only evaluation phase
-    python run_local.py --phase train      # Run only training/convergence phase
+    python run_local.py --phase train     # Run only training/convergence phase
 """
 import argparse
+import sys
+from pathlib import Path
+
+# Ensure starting_kit root is on path so "from utils.monitor" works
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import numpy as np
 import gymnasium as gym
-from monitor import ConvergenceMonitor
+from utils.monitor import ConvergenceMonitor
 
 # --- CONFIGURATION (Injected by Builder) ---
 ENV_ID = "___ENV_ID___"
@@ -39,7 +45,7 @@ def run_evaluation_phase():
     print(f"Episodes: {NUM_EPISODES}")
     print("-" * 60)
     
-    from agent import Agent
+    from submission_contents.agent import Agent
     
     env = gym.make(ENV_ID)
     agent = Agent(env)
@@ -97,7 +103,7 @@ def run_convergence_phase():
     print(f"Number of Runs: {NUM_RUNS}")
     print("-" * 60)
     
-    from agent import Agent
+    from submission_contents.agent import Agent
     
     step_counts = []
     num_runs = int(NUM_RUNS)
