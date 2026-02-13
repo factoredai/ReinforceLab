@@ -1,79 +1,108 @@
 """
-Base Agent Template for ReinforceLab Competitions
+Submission Agent - Default implementation with checkpoint save/load demonstration.
 
-Implement your agent by creating an Agent class with the following interface.
-The agent receives the environment in __init__ and is responsible for its own
-loading/saving logic.
+Your submission must have an agent.py with an Agent class implementing:
+- __init__(env): Initialize with the environment
+- act(observation): Return an action given an observation
+- train(): Train the agent using self.env (until StopIteration from monitor)
+- load(): Load your model (artifacts MUST be in the submission directory)
+- save(): Save your model (artifacts MUST be in the submission directory)
+
+This default agent takes random actions and demonstrates save/load with a pickle checkpoint.
 """
+import os
+import pickle
 import gymnasium as gym
+
+
+# Directory where this agent.py lives - your submission files are extracted here
+SUBMISSION_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_CHECKPOINT = os.path.join(SUBMISSION_DIR, "checkpoint.pkl")
 
 
 class Agent:
     """
-    Base Agent Template - Implement your RL agent here.
-    
-    Required methods:
-    - __init__(env): Initialize with the environment
-    - act(observation): Return an action given an observation
-    - train(): Train the agent using self.env
-    - load(): Load your model (you decide the format/location)
-    - save(): Save your model (you decide the format/location)
+    Default agent: random actions with toy save/load for demonstration.
+
+    Replace this with your trained model. The interface is:
+    - act(obs): Return action for evaluation and during training
+    - train(): Run training loop; catch StopIteration when monitor signals done
+    - save(): Persist model/weights into the submission directory
+    - load(): Load from files in the submission directory
     """
-    
+
     def __init__(self, env: gym.Env):
         """
-        Initialize your agent with the environment.
-        
+        Initialize the agent with the environment.
+
         Args:
-            env: The gymnasium environment to interact with.
+            env: The gymnasium environment. In Phase 2 (convergence), this is
+                 wrapped with ConvergenceMonitor which raises StopIteration
+                 when the goal is reached or max steps hit.
         """
         self.env = env
+        self.checkpoint_data = None
 
     def act(self, observation):
         """
-        Return an action given an observation.
-        
-        This is used in both Phase 1 (evaluation) and Phase 2 (training).
-        
+        Return an action given the current observation.
+
+        Used in both Phase 1 (evaluation) and Phase 2 (training).
+        In your implementation, use your trained policy/model here.
+
         Args:
-            observation: The current observation from the environment.
-            
+            observation: Current observation from the environment.
+
         Returns:
-            An action to take in the environment.
+            An action valid for env.action_space.
         """
-        raise NotImplementedError("You must implement the act() method")
+        return self.env.action_space.sample()
 
     def train(self):
         """
         Train the agent using self.env.
-        
-        Used in Phase 2 (Convergence). The environment is wrapped with a
-        ConvergenceMonitor that will raise StopIteration when:
-        - The goal reward is achieved for the stability window, OR
-        - Max steps is reached
-        
-        Your training loop should catch StopIteration to exit gracefully.
+
+        The environment may be wrapped with ConvergenceMonitor, which raises
+        StopIteration when the goal reward is achieved for the stability window
+        or when max steps is reached. Catch StopIteration to exit gracefully.
+
+        In your implementation, run your training loop here.
         """
-        raise NotImplementedError("You must implement the train() method")
+        try:
+            for _ in range(10):
+                obs, _ = self.env.reset()
+                done = False
+                while not done:
+                    action = self.act(obs)
+                    obs, reward, terminated, truncated, info = self.env.step(action)
+                    done = terminated or truncated
+        except StopIteration:
+            pass
 
     def load(self):
         """
-        Load your trained model.
-        
-        Used in Phase 1 (Evaluation). You decide where and how to load:
-        - Load from a file in the same directory (e.g., 'model.pt', 'weights.pkl')
-        - Load from multiple files
-        - Use any format you prefer
-        
-        This method is called before evaluation begins.
+        Load model weights or checkpoint.
+
+        You decide how to load (pickle, torch, etc.), but the artifact MUST be
+        in the submission directory (same directory as this agent.py).
+        Example: path = os.path.join(SUBMISSION_DIR, 'model.pt')
         """
-        pass  # Override to load your model
+        if os.path.exists(DEFAULT_CHECKPOINT):
+            with open(DEFAULT_CHECKPOINT, "rb") as f:
+                self.checkpoint_data = pickle.load(f)
+            print(f"Loaded checkpoint from {DEFAULT_CHECKPOINT}: {self.checkpoint_data}")
+        else:
+            print(f"No checkpoint found at {DEFAULT_CHECKPOINT}")
 
     def save(self):
         """
-        Save your trained model.
-        
-        Optional - useful for checkpointing during training.
-        You decide where and how to save.
+        Save model weights or checkpoint.
+
+        You decide how to save (pickle, torch, etc.), but the artifact MUST be
+        in the submission directory (same directory as this agent.py).
+        Example: path = os.path.join(SUBMISSION_DIR, 'model.pt')
         """
-        pass  # Override to save your model
+        toy_data = {"episode": 0, "toy": True, "message": "Demo checkpoint"}
+        with open(DEFAULT_CHECKPOINT, "wb") as f:
+            pickle.dump(toy_data, f)
+        print(f"Saved checkpoint to {DEFAULT_CHECKPOINT}")

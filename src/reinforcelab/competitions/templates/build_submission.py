@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Build a submission zip from the contents of a folder (e.g. sample_submission).
+"""Build a submission zip from the contents of a folder (e.g. submission_contents).
 
 Zips the contents of the input folder, not the folder itself, so files appear
 at the root of the archive (as Codabench expects for code submissions).
 
 Usage (from starting kit directory):
-  python build_submission.py
-  python build_submission.py -i sample_submission -o my_submission.zip
+  python utils/build_submission.py
+  python utils/build_submission.py -i submission_contents -o my_submission.zip
 """
 
 import argparse
@@ -35,14 +35,14 @@ def build_submission(input_dir: Path, output_path: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Build a submission zip from folder contents (e.g. sample_submission)."
+        description="Build a submission zip from folder contents (e.g. submission_contents)."
     )
     parser.add_argument(
         "-i",
         "--input",
         type=Path,
-        default=Path("sample_submission"),
-        help="Input folder to zip (default: sample_submission)",
+        default=Path("submission_contents"),
+        help="Input folder to zip (default: submission_contents)",
     )
     parser.add_argument(
         "-o",

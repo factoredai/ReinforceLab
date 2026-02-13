@@ -6,9 +6,11 @@ comp = RLCompetition(
 )
 
 comp.add_phase(PhaseConfig(
-    name="Performance Evaluation",
+    name="Performance & Convergence Evaluation",
     env_id="tornadocliff_env:factoredai/TornadoCliff-v0",
-    phase_type="evaluation",
+    phase_type="convergence",
+    goal_reward=-50.0,
+    max_steps=1_000_000,
 ))
 
 comp.build()

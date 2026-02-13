@@ -1,3 +1,4 @@
+# Base dependencies. Add any extra requirements your agent needs (e.g. torch, sb3).
 gymnasium
 numpy
 matplotlib>=3.9

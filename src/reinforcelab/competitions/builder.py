@@ -1,4 +1,5 @@
 import os
+import pickle
 import shutil
 import yaml
 import pathlib
@@ -244,28 +245,18 @@ class CompetitionBuilder:
 
         # 6. Build leaderboard columns from phase types
         lb_columns = []
-        idx = 0
-        if eval_phase:
-            lb_columns.append({
-                "title": "Score",
-                "key": "score",
-                "index": idx,
-                "sorting": "desc"
-            })
-            idx += 1
+        lb_columns.append({
+            "title": "Score",
+            "key": "score",
+            "index": 0,
+            "sorting": "desc"
+        })
         if conv_phase:
             lb_columns.append({
                 "title": "Convergence",
                 "key": "convergence_score",
-                "index": idx,
+                "index": 1,
                 "sorting": "asc"
-            })
-            idx += 1
-            lb_columns.append({
-                "title": "Eval",
-                "key": "eval_score",
-                "index": idx,
-                "sorting": "desc"
             })
         if not lb_columns:
             lb_columns = [{"title": "Score", "key": "score", "index": 0, "sorting": "desc"}]
@@ -371,21 +362,14 @@ class CompetitionBuilder:
         if logo_path:
             shutil.copy(logo_path, os.path.join(self.starting_kit_dir, "logo.png"))
         
-        # Agent template and random agent implementation
+        # Utils: run_local, monitor, build_submission
+        utils_dir = os.path.join(self.starting_kit_dir, "utils")
+        os.makedirs(utils_dir, exist_ok=True)
+        self._write_file(os.path.join(utils_dir, "__init__.py"), "")
         self._write_file(
-            os.path.join(self.starting_kit_dir, "agent.py"),
-            self._read_template("agent.py")
-        )
-        self._write_file(
-            os.path.join(self.starting_kit_dir, "random_agent.py"),
-            self._read_template("solution_random_agent.py")
-        )
-        self._write_file(
-            os.path.join(self.starting_kit_dir, "monitor.py"),
+            os.path.join(utils_dir, "monitor.py"),
             self._read_template("monitor.py")
         )
-        
-        # Run local script with full phase configuration
         run_local_code = self._render("run_local.py", {
             "ENV_ID": default_env,
             "NUM_EPISODES": str(num_episodes),
@@ -395,44 +379,36 @@ class CompetitionBuilder:
             "NUM_RUNS": str(num_runs)
         })
         self._write_file(os.path.join(self.starting_kit_dir, "run_local.py"), run_local_code)
-        
-        # Training script with environment and goal configured
-        train_code = self._render("train.py", {
-            "ENV_ID": default_env,
-            "GOAL_REWARD": str(goal_reward)
-        })
-        self._write_file(os.path.join(self.starting_kit_dir, "train.py"), train_code)
+        self._write_file(
+            os.path.join(utils_dir, "build_submission.py"),
+            self._read_template("build_submission.py")
+        )
 
-        # Requirements (read from template or competition override)
+        # submission_contents: single agent implementation and default checkpoint
         requirements_content = self._read_template("requirements.txt")
-        self._write_file(os.path.join(self.starting_kit_dir, "requirements.txt"), requirements_content)
-        
-        # Sample submission folder with example agent and checkpoint
-        sample_dir = os.path.join(self.starting_kit_dir, "sample_submission")
-        os.makedirs(sample_dir, exist_ok=True)
+        submission_dir = os.path.join(self.starting_kit_dir, "submission_contents")
+        os.makedirs(submission_dir, exist_ok=True)
         self._write_file(
-            os.path.join(sample_dir, "agent.py"),
-            self._read_template("sample_submission_agent.py")
+            os.path.join(submission_dir, "__init__.py"),
+            ""
         )
         self._write_file(
-            os.path.join(sample_dir, "checkpoint.txt"),
-            self._read_template("sample_checkpoint.txt")
+            os.path.join(submission_dir, "agent.py"),
+            self._read_template("agent.py")
         )
+        # Default checkpoint: pickle with toy contents (shipped with submission)
+        checkpoint_path = os.path.join(submission_dir, "checkpoint.pkl")
+        with open(checkpoint_path, "wb") as f:
+            pickle.dump({"episode": 0, "toy": True, "message": "Demo checkpoint"}, f)
         self._write_file(
-            os.path.join(sample_dir, "requirements.txt"),
+            os.path.join(submission_dir, "requirements.txt"),
             requirements_content
         )
-        # Create zip of sample submission for easy upload
+        # Create zip of submission_contents for easy upload
         shutil.make_archive(
             os.path.join(self.starting_kit_dir, "sample_submission"),
             'zip',
-            sample_dir
-        )
-        
-        # build_submission.py for participants to create submission zips
-        self._write_file(
-            os.path.join(self.starting_kit_dir, "build_submission.py"),
-            self._read_template("build_submission.py")
+            submission_dir
         )
         
         # Getting started notebook with environment and title configured
